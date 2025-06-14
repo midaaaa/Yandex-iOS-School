@@ -18,12 +18,12 @@ struct Category {
         case outcome
     }
 }
-
-// MARK: Codable
 /*
+// MARK: Codable (posible use in future)
+
 import Foundation
 
-struct Category: Codable { // struct values to LET instead of VAR?
+struct Category2: Codable {
     var id: String
     var name: String
     var icon: Character
@@ -67,15 +67,13 @@ struct Category: Codable { // struct values to LET instead of VAR?
         try container.encode(type, forKey: .type)
     }
 }
- */
 
-/*
-extension Category {
-    static func parse(jsonObject: Any) -> Transaction? {
+extension Category2 {
+    static func parse(jsonObject: Any) -> Category2? {
         guard let data = try? JSONSerialization.data(withJSONObject: jsonObject) else {
             return nil
         }
-        return try? JSONDecoder().decode(Transaction.self, from: data)
+        return try? JSONDecoder().decode(Category2.self, from: data)
     }
     
     var jsonObject: Any {

@@ -11,26 +11,90 @@ struct Transaction: Codable {
     var id: Int
     var accountId: String?
     var categoryId: String?
-    var amount: Decimal // value Decimal?
+    var amount: Decimal  // only Decimal decoded from String
     //var transactionDate: Date
     var comment: String?
-    var timestamp: Date // Int?
+    var timestamp: Date
     var hidden: Bool
+    
+    private enum CodingKeys: String, CodingKey {
+        case id, accountId, categoryId, amount, comment, timestamp, hidden
+    }
+    
+    init(
+        id: Int,
+        accountId: String?,
+        categoryId: String?,
+        amount: Decimal,
+        comment: String?,
+        timestamp: Date,
+        hidden: Bool
+    ) {
+        self.id = id
+        self.accountId = accountId
+        self.categoryId = categoryId
+        self.amount = amount
+        self.comment = comment
+        self.timestamp = timestamp
+        self.hidden = hidden
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        id = try container.decode(Int.self, forKey: .id)
+        accountId = try container.decodeIfPresent(String.self, forKey: .accountId)
+        categoryId = try container.decodeIfPresent(String.self, forKey: .categoryId)
+        comment = try container.decodeIfPresent(String.self, forKey: .comment)
+        timestamp = try container.decode(Date.self, forKey: .timestamp)
+        hidden = try container.decode(Bool.self, forKey: .hidden)
+        
+        guard let amountString = try? container.decode(String.self, forKey: .amount),
+              let decimalAmount = Decimal(string: amountString) else {
+            throw DecodingError.dataCorruptedError(
+                forKey: .amount,
+                in: container,
+                debugDescription: "Invalid decimal string format"
+            )
+        }
+        amount = decimalAmount
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encodeIfPresent(accountId, forKey: .accountId)
+        try container.encodeIfPresent(categoryId, forKey: .categoryId)
+        try container.encode(amount.description, forKey: .amount)
+        try container.encodeIfPresent(comment, forKey: .comment)
+        try container.encode(timestamp, forKey: .timestamp)
+        try container.encode(hidden, forKey: .hidden)
+    }
 }
+
+// MARK: Transaction JSON Extension
 
 extension Transaction {
     static func parse(jsonObject: Any) -> Transaction? {
         guard let data = try? JSONSerialization.data(withJSONObject: jsonObject) else {
-            return nil  // throw Error.invalidTransactionData
+            return nil
         }
-        return try? JSONDecoder().decode(Transaction.self, from: data)
+        
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .secondsSince1970
+        return try? decoder.decode(Transaction.self, from: data)
     }
     
     var jsonObject: Any {
-        guard let data = try? JSONEncoder().encode(self),
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .secondsSince1970
+        encoder.outputFormatting = .sortedKeys
+        
+        guard let data = try? encoder.encode(self),
               let json = try? JSONSerialization.jsonObject(with: data) else {
             return [:]
         }
+        
         return json
     }
 }
@@ -90,4 +154,3 @@ extension Transaction {
         ].joined(separator: ",")
     }
 }
-

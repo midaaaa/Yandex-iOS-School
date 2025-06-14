@@ -4,19 +4,20 @@
 //
 //  Created by Дмитрий Филимонов on 12.06.2025.
 //
+
 import Foundation
 
 final class BankAccountsService {
     private var mockBankAccounts = [
-        BankAccount(id: "g5ldpb73", name: "Основной счет", balance: 15000.50, currency: "USD"),
-        BankAccount(id: "g99dpb99", name: "Дополнительный счет", balance: 9999.99, currency: "EUR"),
+        BankAccount(id: "g5ldpb73", name: "Основной счет", balance: Decimal(string: "15000.52") ?? 500, currency: "USD"),
+        BankAccount(id: "g99dpb99", name: "Дополнительный счет", balance: Decimal(string: "9999.99") ?? 500, currency: "EUR"),
         //BankAccount(...),
         //BankAccount(...),
     ]
     
     func bankAccount() async throws -> BankAccount {
         guard let bankAccount = mockBankAccounts.first else {
-            throw MockError.notFound
+            throw Error.notFound
         }
         return bankAccount
     }
@@ -25,13 +26,15 @@ final class BankAccountsService {
         if let index = mockBankAccounts.firstIndex(where: { $0.id == updatedBankAccount.id }) {
             mockBankAccounts[index] = updatedBankAccount
         } else {
-            throw MockError.notFound
+            throw Error.notFound
         }
     }
 }
 
-enum MockError: Error {
-    case notFound
-    case duplicate
-    case invalidData
+extension BankAccountsService {
+    enum Error: Swift.Error {
+        case notFound
+        case duplicate
+        case invalidData
+    }
 }

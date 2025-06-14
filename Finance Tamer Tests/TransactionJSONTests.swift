@@ -16,7 +16,7 @@ final class TransactionJSONTests: XCTestCase {
             "id": 1,
             "accountId": "101",
             "categoryId": "201",
-            "amount": 1500.50,
+            "amount": "15000.33",
             "comment": "Test transaction",
             "timestamp": Date().timeIntervalSince1970,
             "hidden": false
@@ -28,11 +28,11 @@ final class TransactionJSONTests: XCTestCase {
     func testParseValidJSON() {
         let json = validTransactionJSON
         let transaction = Transaction.parse(jsonObject: json)
-
+        
         XCTAssertNotNil(transaction)
         XCTAssertEqual(transaction?.id, 1)
         XCTAssertEqual(transaction?.accountId, "101")
-        XCTAssertEqual(transaction?.amount, Decimal(string: "1500.50"))
+        XCTAssertEqual(transaction?.amount, Decimal(string: "15000.33"))
     }
     
     func testParseMissingRequiredField() {
@@ -65,7 +65,7 @@ final class TransactionJSONTests: XCTestCase {
             id: 2,
             accountId: "102",
             categoryId: "202",
-            amount: 2000.75,
+            amount: Decimal(string: "15000.33") ?? 15000,
             comment: "Test conversion",
             timestamp: Date(),
             hidden: true
@@ -85,7 +85,7 @@ final class TransactionJSONTests: XCTestCase {
             id: 3,
             accountId: nil,
             categoryId: nil,
-            amount: 100,
+            amount: Decimal(string: "100") ?? 100,
             comment: nil,
             timestamp: Date(),
             hidden: false
