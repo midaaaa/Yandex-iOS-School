@@ -39,7 +39,7 @@ final class TransactionsService {
 }
 
 extension TransactionsService {
-    enum Error: Swift.Error {
+    private enum Error: Swift.Error {
         case notFound
         case duplicate
         case invalidData

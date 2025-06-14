@@ -32,7 +32,7 @@ final class BankAccountsService {
 }
 
 extension BankAccountsService {
-    enum Error: Swift.Error {
+    private enum Error: Swift.Error {
         case notFound
         case duplicate
         case invalidData

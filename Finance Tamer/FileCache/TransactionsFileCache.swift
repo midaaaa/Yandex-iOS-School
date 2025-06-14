@@ -75,7 +75,7 @@ final actor TransactionsFileCache {
 }
 
 extension TransactionsFileCache {
-    enum Error: Swift.Error {
+    private enum Error: Swift.Error {
         case duplicateTransaction
         case invalidFileFormat
         case invalidTransactionData
