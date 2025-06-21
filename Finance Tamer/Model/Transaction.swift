@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Transaction: Codable {
+struct Transaction: Codable, Identifiable {
     var id: Int
     var accountId: String?
     var categoryId: String?
