@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Category {
+struct Category: Identifiable {
     var id: String
     var name: String
     var icon: Character

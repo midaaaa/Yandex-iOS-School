@@ -7,9 +7,10 @@
 
 import Foundation
 
+@Observable
 final class BankAccountsService {
     private var mockBankAccounts = [
-        BankAccount(id: "g5ldpb73", name: "Основной счет", balance: Decimal(string: "15000.52") ?? 500, currency: "USD"),
+        BankAccount(id: "g5ldpb73", name: "Основной счет", balance: Decimal(string: "15070.52") ?? 500, currency: "RUB"),
         BankAccount(id: "g99dpb99", name: "Дополнительный счет", balance: Decimal(string: "9999.99") ?? 500, currency: "EUR"),
         //BankAccount(...),
         //BankAccount(...),

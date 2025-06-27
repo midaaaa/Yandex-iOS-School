@@ -7,10 +7,15 @@
 
 import Foundation
 
+@Observable
 final class TransactionsService {
     private var mockTransactions = [
-        Transaction(id: 1, accountId: "g5ldpb73", categoryId: "1111", amount: Decimal(string: "-156.33") ?? 500, comment: nil, timestamp: Date(), hidden: false),
-        Transaction(id: 2, accountId: "g5ldpb73", categoryId: "2222", amount: Decimal(string: "15000.33") ?? 500, comment: nil, timestamp: Date()+1, hidden: false),
+        Transaction(id: 1, accountId: "g5ldpb73", categoryId: "1111", amount: Decimal(string: "-1000000.33") ?? 500, comment: nil, timestamp: Date(), hidden: false),
+        Transaction(id: 2, accountId: "g5ldpb73", categoryId: "1112", amount: Decimal(string: "-15000.33") ?? 500, comment: "Энни", timestamp: Date()+1, hidden: false),
+        Transaction(id: 3, accountId: "g5ldpb73", categoryId: "2222", amount: Decimal(string: "15004.33") ?? 500, comment: "Джон", timestamp: Date()+2, hidden: false),
+        Transaction(id: 4, accountId: "g5ldpb73", categoryId: "2223", amount: Decimal(string: "11002.33") ?? 500, comment: "Энни", timestamp: Date()+3, hidden: false),
+        Transaction(id: 5, accountId: "g5ldpb73", categoryId: "1111", amount: Decimal(string: "-999999") ?? 500, comment: "тест", timestamp: Calendar.current.date(byAdding: .day, value: -1, to: Date())!, hidden: false),
+        Transaction(id: 6, accountId: "g5ldpb73", categoryId: "2222", amount: Decimal(string: "999999") ?? 500, comment: "тест", timestamp: Calendar.current.date(byAdding: .day, value: -2, to: Date())!, hidden: false),
         //Transaction(...),
         //Transaction(...),
     ]
