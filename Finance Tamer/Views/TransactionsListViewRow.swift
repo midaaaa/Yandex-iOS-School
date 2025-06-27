@@ -47,7 +47,9 @@ struct TransactionsListViewRow: View {
 }
 
 #Preview {
-    let viewModel = TransactionsListViewModel()
+    let bankAccountService = BankAccountsService()
+    let viewModel = TransactionsListViewModel(accountService: bankAccountService)
+    
     Group {
         TransactionsListViewRow(
             transaction: viewModel.transactions[0],

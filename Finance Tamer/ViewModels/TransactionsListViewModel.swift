@@ -46,9 +46,13 @@ class TransactionsListViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var error: String? = nil
     
-    private let accountService = BankAccountsService()
+    private let accountService: BankAccountsService
     private let categoryService = CategoriesService()
     private let transactionService = TransactionsService()
+    
+    init(accountService: BankAccountsService) {
+        self.accountService = accountService
+    }
     
     var total: Decimal {
         transactions.reduce(0) { $0 + $1.amount }
@@ -66,7 +70,7 @@ class TransactionsListViewModel: ObservableObject {
             guard let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)?
                 .addingTimeInterval(-1)
             else { return }
-                    
+            
             async let account = accountService.bankAccount()
             async let categories = categoryService.categories(ofType: direction)
             async let transactions = transactionService.getTransactions(from: startOfDay, to: endOfDay)

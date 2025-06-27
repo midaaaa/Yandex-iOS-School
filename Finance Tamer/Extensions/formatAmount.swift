@@ -7,7 +7,7 @@
 
 import Foundation
 
-func formatAmount(_ amount: String, currencyCode: String, showMinus: Bool = true) -> String {
+func formatAmount(_ amount: String, currencyCode: String = "", showMinus: Bool = true) -> String {
     let parts = amount.components(separatedBy: ".")
     let integerPart = parts[0]
     let fractionPart = parts.count > 1 ? "." + parts[1] : ""
