@@ -21,7 +21,7 @@ struct TransactionsListViewRow: View {
         HStack {
             ZStack {
                 Circle()
-                    .foregroundColor(.accentColor)
+                    .foregroundColor(Color("SecondaryAccentColor"))
                 Text(String(category.icon))
             }
             .frame(width: Constants.iconFrameSize, height: Constants.iconFrameSize)

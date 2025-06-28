@@ -25,7 +25,7 @@ struct ContentView: View {
             TabView(selection: $selection) {
                 TransactionsListView(viewModel: viewModel, isIncome: .constant(false))
                     .tabItem {
-                        Label("Расходы", image: "income")
+                        Label("Расходы", image: "outcome")
                     }
                     .task {
                         await viewModel.loadData(for: .outcome)
@@ -35,7 +35,7 @@ struct ContentView: View {
 
                 TransactionsListView(viewModel: viewModel, isIncome: .constant(true))
                     .tabItem {
-                        Label("Доходы", image: "outcome")
+                        Label("Доходы", image: "income")
                     }
                     .task {
                         await viewModel.loadData(for: .income)
@@ -68,7 +68,6 @@ struct ContentView: View {
 }
 
 #Preview {
-    // give them same services?
     let bankAccountService = BankAccountsService()
     let viewModel = TransactionsListViewModel(accountService: bankAccountService)
     let viewModel2 = AccountViewModel(bankAccountService: bankAccountService)

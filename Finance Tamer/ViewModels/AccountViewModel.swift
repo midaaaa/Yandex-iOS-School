@@ -14,15 +14,13 @@ class AccountViewModel: ObservableObject {
     @Published var error: String? = nil
     @Published var isBalanceHidden: Bool = false
     private let bankAccountService: BankAccountsService
-    private static let currencies = ["RUB", "USD", "EUR"]
+    private static let currencies = ["RUB", "USD", "EUR", "GBP", "CNY"]
     
     init(bankAccountService: BankAccountsService) {
         self.bankAccountService = bankAccountService
     }
     
-    
     func getCurrencies() -> [String] {
-        // Currency.allCases.map
         Self.currencies
     }
     

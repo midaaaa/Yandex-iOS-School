@@ -12,18 +12,11 @@ struct AccountView: View {
     @FocusState private var isBalanceFocused: Bool
     @State var buttonDisabled: Bool = true
     @State var showCurrencyPicker: Bool = false
-    
-    
-    
     @State var isBalanceHidden = true
-        
-    func toggleBalanceVisibility() {
-        withAnimation(.spring()) {
-            isBalanceHidden.toggle()
-        }
+
+    private enum Constants {
+        static let iconSpacing: CGFloat = 4
     }
-    
-    
     
     var body: some View {
         NavigationStack {
@@ -33,19 +26,16 @@ struct AccountView: View {
                         Text("💰")
                         Text("Баланс")
                         Spacer()
-                        //if viewModel.isEditing {
                         ZStack(alignment: .trailing) {
                             if !viewModel.isEditing {
-                                HStack(spacing: 4) {
+                                HStack(spacing: Constants.iconSpacing) {
                                     Text(formatAmount(
-                                        viewModel.bankAccount?.balance.description ?? "7770",
-                                        currencyCode: viewModel.bankAccount?.currency ?? "GBP",
+                                        viewModel.bankAccount?.balance.description ?? "0",
+                                        currencyCode: viewModel.bankAccount?.currency ?? "RUB",
                                         showMinus: true
                                     ))
-                                    //.spoiler(isOn: $isBalanceHidden)
+                                    .spoiler(isOn: $isBalanceHidden)
                                 }
-                                //.transition(.opacity.combined(with: .scale(scale: 0.01)))
-                                //.animation(.spring(response: 0.3, dampingFraction: 0.7), value: viewModel.isEditing)
                             } else {
                                 TextField(
                                     "Введите Ваш баланс",
@@ -57,95 +47,26 @@ struct AccountView: View {
                                             if let newBalance = Decimal(string: filterAmount(newValue)) {
                                                 viewModel.bankAccount?.balance = newBalance
                                             }
-//                                            if let newBalance = Decimal(string: newValue) {
-//                                                viewModel.bankAccount?.balance = newBalance
-//                                            }
                                         }
                                     )
                                 )
-                                .keyboardType(.numbersAndPunctuation)
-                                .focused($isBalanceFocused)
-                                .disabled(!viewModel.isEditing)
-                                //.padding()
-                                //.background(Color(.systemGray6))
-                                //.cornerRadius(8) // ???
-                                .multilineTextAlignment(.trailing)
-                                //.transition(.opacity.combined(with: .scale(scale: 0.01)))
-                                
-                                //.animation(.spring(response: 0.3, dampingFraction: 0.7), value: viewModel.isEditing)
-//                                .onAppear {
-//                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//                                        isBalanceFocused = true
-//                                    }
-//                                }
-                            }
-                            
-                            
-                        }
-                        
-                        /*
-                            TextField(
-                                "Сумма",
-                                text: Binding(
-                                    get: {
-//                                        if viewModel.isEditing {
-//                                            viewModel.bankAccount?.balance.description ?? "0"
-//                                        } else {
-                                            formatAmount(
-                                                viewModel.bankAccount?.balance.description ?? "555555",
-                                                currencyCode: viewModel.bankAccount?.currency ?? "GBP",
-                                                showMinus: true
-                                            )
-                                        //}
-                                        //viewModel.bankAccount?.balance.description ?? "0"
-                                    },
-                                    set: { newValue in
-                                        if let newBalance = Decimal(string: newValue) {
-                                            viewModel.bankAccount?.balance = newBalance
-                                        }
-                                    }
-                                )
-                            )
                                 .keyboardType(.decimalPad)
                                 .focused($isBalanceFocused)
                                 .disabled(!viewModel.isEditing)
-                                //.padding()
-                                //.background(Color(.systemGray6))
-                                .cornerRadius(8)
                                 .multilineTextAlignment(.trailing)
-                                .onAppear {
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                        isBalanceFocused = true
-                                    }
-                                }
-//                        } else {
-//                            Text(
-//                                formatAmount(
-//                                    viewModel.bankAccount?.balance.description ?? "555555",
-//                                    currencyCode: viewModel.bankAccount?.currency ?? "GBP",
-//                                    showMinus: true
-//                                )
-//                            )
-//                            .foregroundStyle(.secondary)
-//                        }
-                         */
+                            }
+                        }
                     }
-                    //.background(Color(.blue))
                 }
-//                Section {
-//                    Text("Валюта")
-//                    //SecureField("313", text: $pass)
-//                    
-//                }
+                .listRowBackground(viewModel.isEditing ? Color.white : Color.accentColor)
                 
                 Button(action: {
                     showCurrencyPicker.toggle()
                 }) {
                     HStack {
                         Text("Валюта")
-                            //.foregroundStyle(.primary)
                         Spacer()
-                        Text(viewModel.bankAccount?.currency.description.currencySymbol ?? "GBP")
+                        Text(viewModel.bankAccount?.currency.description.currencySymbol ?? "RUB")
                             .foregroundStyle(.secondary)
                         if viewModel.isEditing {
                             Image(systemName: "chevron.right")
@@ -154,6 +75,7 @@ struct AccountView: View {
                     }
                 }
                 .foregroundStyle(.primary)
+                .listRowBackground(viewModel.isEditing ? Color.white : Color("SecondaryAccentColor"))
                 .disabled(buttonDisabled)
                 .confirmationDialog(
                     "Валюта",
@@ -161,40 +83,32 @@ struct AccountView: View {
                     titleVisibility: .visible
                 ) {
                     ForEach(viewModel.getCurrencies(), id: \.self) { currency in
-                        Button(currency) {
+                        Button(getCurrencyDisplayName(for: currency)) {
                             viewModel.bankAccount?.currency = currency
                         }
                     }
                 }
-                .foregroundStyle(.primary)
-                
-                Section {
-                    if !viewModel.isEditing {
-                        Rectangle()
-                            .frame(height: 200)
-                            .foregroundStyle(.accent)
-                            .transition(.scale)  // redundant?
-                        // remove from list
-                    }
-                }
+                .tint(Color("OppositeAccentColor"))
             }
             .navigationTitle("Мой счёт")
             .toolbar {
-                Button(viewModel.isEditing ? "Сохранить" : "Редактировать") {
-                    withAnimation {
-                        viewModel.isEditing.toggle()
-                        buttonDisabled.toggle()
-                    }
-                    
-                    if !viewModel.isEditing, let bankAccount = viewModel.bankAccount {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(viewModel.isEditing ? "Сохранить" : "Редактировать") {
+                        withAnimation {
+                            viewModel.isEditing.toggle()
+                            buttonDisabled.toggle()
+                        }
                         
-                        Task {
-                            await viewModel.editBankAccount(
-                                amount: bankAccount.balance.description,
-                                currency: bankAccount.currency
-                            )
+                        if !viewModel.isEditing, let bankAccount = viewModel.bankAccount {
+                            Task {
+                                await viewModel.editBankAccount(
+                                    amount: bankAccount.balance.description,
+                                    currency: bankAccount.currency
+                                )
+                            }
                         }
                     }
+                    .foregroundColor(Color("OppositeAccentColor"))
                 }
             }
             .scrollDismissesKeyboard(.interactively)
@@ -212,7 +126,6 @@ struct AccountView: View {
     let viewModel = AccountViewModel(bankAccountService: bankAccountService)
     
     AccountView(viewModel: viewModel)
-        //.previewKeyboard(.visible)
         .task {
             await viewModel.loadBankAccount()
         }

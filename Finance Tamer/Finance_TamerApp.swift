@@ -22,7 +22,6 @@ struct Finance_TamerApp: App {
                 }
                 .environmentObject(viewModel)
                 .environmentObject(viewModel2)
-                
         }
     }
 }

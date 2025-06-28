@@ -55,6 +55,7 @@ struct TransactionsListView: View {
                     } label: {
                         Image(systemName: "clock")
                     }
+                    .foregroundColor(Color("OppositeAccentColor"))
                 }
                 
                 NavigationLink {

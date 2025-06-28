@@ -15,7 +15,7 @@ struct TransactionsListHistoryView: View {
     @State private var startDate: Date = {
         let calendar = Calendar.current
         guard let oneMonthAgo = calendar.date(byAdding: .month, value: -1, to: Date()) else {
-            return calendar.startOfDay(for: Date()) // fallback на текущую дату
+            return calendar.startOfDay(for: Date())
         }
         return calendar.startOfDay(for: oneMonthAgo)
     }()
@@ -24,7 +24,7 @@ struct TransactionsListHistoryView: View {
         let calendar = Calendar.current
         let startOfToday = calendar.startOfDay(for: Date())
         guard let endOfToday = calendar.date(byAdding: .day, value: 1, to: startOfToday) else {
-            return startOfToday // fallback на начало текущего дня
+            return startOfToday
         }
         return endOfToday.addingTimeInterval(-1)
     }()
@@ -120,6 +120,7 @@ struct TransactionsListHistoryView: View {
                     } label: {
                         Image(systemName: "doc")
                     }
+                    .foregroundColor(Color("OppositeAccentColor"))
                 }
             }
             .onChange(of: startDate, initial: true) { _,_  in

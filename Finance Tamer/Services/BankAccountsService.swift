@@ -26,7 +26,6 @@ final class BankAccountsService {
     func editBankAccount(_ updatedBankAccount: BankAccount) async throws {
         if let index = mockBankAccounts.firstIndex(where: { $0.id == updatedBankAccount.id }) {
             mockBankAccounts[index] = updatedBankAccount
-            print(updatedBankAccount)
         } else {
             throw Error.notFound
         }
