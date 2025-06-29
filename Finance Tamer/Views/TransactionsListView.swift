@@ -55,6 +55,7 @@ struct TransactionsListView: View {
                     } label: {
                         Image(systemName: "clock")
                     }
+                    .foregroundColor(Color("OppositeAccentColor"))
                 }
                 
                 NavigationLink {
@@ -68,7 +69,9 @@ struct TransactionsListView: View {
 }
 
 #Preview {
-    let viewModel = TransactionsListViewModel()
+    let bankAccountService = BankAccountsService()
+    let viewModel = TransactionsListViewModel(accountService: bankAccountService)
+    
     TransactionsListView(viewModel: viewModel, isIncome: .constant(true))
         .task {
             await viewModel.loadData(for: .income)

@@ -9,12 +9,13 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var viewModel: TransactionsListViewModel
+    @EnvironmentObject var viewModel2: AccountViewModel
     @State private var selection: Tab = .expenses
     
     enum Tab {
         case expenses
         case incomes
-        case count
+        case account
         case articles
         case settings
     }
@@ -24,7 +25,7 @@ struct ContentView: View {
             TabView(selection: $selection) {
                 TransactionsListView(viewModel: viewModel, isIncome: .constant(false))
                     .tabItem {
-                        Label("Расходы", systemImage: "arrow.up.forward.square")
+                        Label("Расходы", image: "outcome")
                     }
                     .task {
                         await viewModel.loadData(for: .outcome)
@@ -34,7 +35,7 @@ struct ContentView: View {
 
                 TransactionsListView(viewModel: viewModel, isIncome: .constant(true))
                     .tabItem {
-                        Label("Доходы", systemImage: "arrow.down.forward.square")
+                        Label("Доходы", image: "income")
                     }
                     .task {
                         await viewModel.loadData(for: .income)
@@ -42,17 +43,24 @@ struct ContentView: View {
                     .environmentObject(viewModel)
                     .tag(Tab.incomes)
                 
-                Placeholder()
+                AccountView(viewModel: viewModel2)
                     .tabItem {
-                        Label("Счёт", systemImage: "calendar")
+                        Label("Счёт", image: "account")
                     }
-                Placeholder()
-                    .tabItem {
-                        Label("Статьи", systemImage: "align.horizontal.left")
+                    .task {
+                        await viewModel2.loadBankAccount()
                     }
+                    .environmentObject(viewModel2)
+                    .tag(Tab.account)
+                
                 Placeholder()
                     .tabItem {
-                        Label("Настройки", systemImage: "gear")
+                        Label("Статьи", image: "articles")
+                    }
+                
+                Placeholder()
+                    .tabItem {
+                        Label("Настройки", image: "settings")
                     }
             }
         }
@@ -60,11 +68,14 @@ struct ContentView: View {
 }
 
 #Preview {
-    let viewModel = TransactionsListViewModel()
-    
+    let bankAccountService = BankAccountsService()
+    let viewModel = TransactionsListViewModel(accountService: bankAccountService)
+    let viewModel2 = AccountViewModel(bankAccountService: bankAccountService)
     ContentView()
         .task {
             await viewModel.loadData(for: .outcome)
+            await viewModel2.loadBankAccount()
         }
         .environmentObject(viewModel)
+        .environmentObject(viewModel2)
 }

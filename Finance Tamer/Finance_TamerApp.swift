@@ -11,13 +11,17 @@ import SwiftUI
 struct Finance_TamerApp: App {
     var body: some Scene {
         WindowGroup {
-            let viewModel = TransactionsListViewModel()
+            let bankAccountService = BankAccountsService()
+            let viewModel = TransactionsListViewModel(accountService: bankAccountService)
+            let viewModel2 = AccountViewModel(bankAccountService: bankAccountService)
             
             ContentView()
                 .task {
                     await viewModel.loadData(for: .outcome)
+                    await viewModel2.loadBankAccount()
                 }
                 .environmentObject(viewModel)
+                .environmentObject(viewModel2)
         }
     }
 }

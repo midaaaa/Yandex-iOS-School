@@ -20,3 +20,15 @@ extension String {
         }
     }
 }
+
+enum Currency: String, CaseIterable {
+    case USD
+    case RUB
+    
+    var symbol: String {
+        switch self {
+        case .USD: return "$"
+        case .RUB: return "₽"
+        }
+    }
+}

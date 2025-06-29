@@ -81,7 +81,6 @@ class TransactionsListHistoryViewModel: ObservableObject {
         defer { isLoading = false }
         
         do {
-
             let calendar = Calendar.current
             let safeStartDate = calendar.startOfDay(for: startDate ?? Date())
             guard let safeEndDate = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: endDate ?? Date()))?
