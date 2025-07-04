@@ -16,7 +16,7 @@ struct AddButton: View {
         Image(systemName: "plus")
             .foregroundColor(.white)
             .padding()
-            .background(Color.accentColor)
+            .background(Color("AccentColor"))
             .clipShape(Circle())
             .shadow(radius: Constants.shadowRadius, y: Constants.shadowRadius)
             .offset(x: Constants.viewOffset, y: Constants.viewOffset)
