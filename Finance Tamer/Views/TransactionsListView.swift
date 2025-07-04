@@ -30,15 +30,19 @@ struct TransactionsListView: View {
                     }
                     
                     Section {
-                        ForEach(viewModel.transactions) { transaction in
-                            NavigationLink{
-                                Placeholder()
-                            } label: {
-                                TransactionsListViewRow(
-                                    transaction: transaction,
-                                    category: viewModel.categories.first { $0.id == transaction.categoryId } ?? viewModel.categories[0],
-                                    account: viewModel.account
-                                )
+                        if viewModel.transactions.isEmpty {
+                            Text("За сегодня транзакций нет")
+                        } else {
+                            ForEach(viewModel.transactions) { transaction in
+                                NavigationLink{
+                                    Placeholder()
+                                } label: {
+                                    TransactionsListViewRow(
+                                        transaction: transaction,
+                                        category: viewModel.categories.first { $0.id == transaction.categoryId } ?? viewModel.categories[0],
+                                        account: viewModel.account
+                                    )
+                                }
                             }
                         }
                     } header: {
@@ -47,8 +51,7 @@ struct TransactionsListView: View {
                             .foregroundColor(.secondary)
                     }
                 }
-                // too long for animation
-                .navigationTitle(isIncome ? "Доходы сегодня" : "Расходы сегодня")
+
                 .toolbar {
                     NavigationLink {
                         TransactionsListHistoryView(isIncome: $isIncome)
@@ -57,6 +60,8 @@ struct TransactionsListView: View {
                     }
                     .foregroundColor(Color("OppositeAccentColor"))
                 }
+                .tint(Color("OppositeAccentColor"))
+                .navigationTitle(isIncome ? "Доходы сегодня" : "Расходы сегодня")
                 
                 NavigationLink {
                     Placeholder()
@@ -65,6 +70,7 @@ struct TransactionsListView: View {
                 }
             }
         }
+        .tint(Color("OppositeAccentColor"))
     }
 }
 

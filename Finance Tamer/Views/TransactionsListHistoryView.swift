@@ -69,7 +69,10 @@ struct TransactionsListHistoryView: View {
             List {
                 Section {
                     DatePicker("Начало", selection: startDateBinding, displayedComponents: .date)
+                        .tint(Color("AccentColor"))
+                    
                     DatePicker("Конец", selection: endDateBinding, displayedComponents: .date)
+                        .tint(Color("AccentColor"))
                     
                     Picker("Сортировка", selection: $viewModel.sortType) {
                         Text("По дате").tag(TransactionsListHistoryViewModel.SortType.byDate)

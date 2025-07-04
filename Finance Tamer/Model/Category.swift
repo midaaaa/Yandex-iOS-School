@@ -7,11 +7,15 @@
 
 import Foundation
 
-struct Category: Identifiable {
+struct Category: Identifiable, FuzzySearchable {
     var id: String
     var name: String
     var icon: Character
     var type: Direction
+    
+    var searchableString: String {
+        return name
+    }
     
     enum Direction {
         case income
