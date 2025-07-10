@@ -91,6 +91,7 @@ struct AccountView: View {
                 .tint(Color("OppositeAccentColor"))
             }
             .navigationTitle("Мой счёт")
+            .listSectionSpacing(.compact)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(viewModel.isEditing ? "Сохранить" : "Редактировать") {

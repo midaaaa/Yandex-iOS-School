@@ -14,46 +14,49 @@ struct ContentView: View {
 
     var body: some View {
         TabView {
-            TransactionsListView(viewModel: viewModel, isIncome: .constant(false))
-                .tabItem {
-                    Label("Расходы", image: "outcome")
-                }
-                .task {
-                    await viewModel.loadData(for: .outcome)
-                }
-                .environmentObject(viewModel)
-
-            TransactionsListView(viewModel: viewModel, isIncome: .constant(true))
-                .tabItem {
-                    Label("Доходы", image: "income")
-                }
-                .task {
-                    await viewModel.loadData(for: .income)
-                }
-                .environmentObject(viewModel)
-            
-            AccountView(viewModel: viewModel2)
-                .tabItem {
-                    Label("Счёт", image: "account")
-                }
-                .task {
-                    await viewModel2.loadBankAccount()
-                }
-                .environmentObject(viewModel2)
-            
-            ArticlesView(viewModel: viewModel3)
-                .tabItem {
-                    Label("Статьи", image: "articles")
-                }
-                .task {
-                    await viewModel3.loadData()
-                }
-                .environmentObject(viewModel3)
-            
-            Placeholder()
-                .tabItem {
-                    Label("Настройки", image: "settings")
-                }
+            Group {
+                TransactionsListView(viewModel: viewModel, isIncome: .constant(false))
+                    .tabItem {
+                        Label("Расходы", image: "outcome")
+                    }
+                        .task {
+                            await viewModel.loadData(for: .outcome)
+                        }
+                    .environmentObject(viewModel)
+                
+                TransactionsListView(viewModel: viewModel, isIncome: .constant(true))
+                    .tabItem {
+                        Label("Доходы", image: "income")
+                    }
+                        .task {
+                            await viewModel.loadData(for: .income)
+                        }
+                    .environmentObject(viewModel)
+                
+                AccountView(viewModel: viewModel2)
+                    .tabItem {
+                        Label("Счёт", image: "account")
+                    }
+                        .task {
+                            await viewModel2.loadBankAccount()
+                        }
+                    .environmentObject(viewModel2)
+                
+                ArticlesView(viewModel: viewModel3)
+                    .tabItem {
+                        Label("Статьи", image: "articles")
+                    }
+                        .task {
+                            await viewModel3.loadData()
+                        }
+                    .environmentObject(viewModel3)
+                
+                Placeholder()
+                    .tabItem {
+                        Label("Настройки", image: "settings")
+                    }
+            }
+            .toolbarBackgroundVisibility(.visible, for: .tabBar)
         }
     }
 }

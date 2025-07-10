@@ -27,6 +27,7 @@ func formatAmount(_ amount: String, currencyCode: String = "", showMinus: Bool =
         result = result.replacingOccurrences(of: "-", with: "")
     }
     
+    let zero = fractionPart == "" || fractionPart.count == 3 ? "" : "0"
     let formattedInteger = String(result.reversed())
-    return formattedInteger + fractionPart + " " + currencyCode.currencySymbol
+    return formattedInteger + fractionPart + zero + " " + currencyCode.currencySymbol
 }

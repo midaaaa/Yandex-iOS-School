@@ -23,7 +23,7 @@ struct ArticlesView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section {
+                Section(Constants.header) {
                     if viewModel.filteredCategories.isEmpty {
                         Text(Constants.searchEmpty)
                     } else {
@@ -42,16 +42,12 @@ struct ArticlesView: View {
                         }
                     }
                 }
-                header: {
-                    Text(Constants.header)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
             }
             .navigationTitle(Constants.title)
             .scrollDismissesKeyboard(.interactively)
+            .searchable(text: $viewModel.searchText, placement: .automatic, prompt: Constants.searchPlaceholder)
+            .padding(.top, -10)
         }
-        .searchable(text: $viewModel.searchText, placement: .automatic, prompt: Constants.searchPlaceholder)
         .tint(Color("OppositeAccentColor"))
     }
 }

@@ -93,7 +93,7 @@ struct TransactionsListHistoryView: View {
                     }
                 }
                 
-                Section {
+                Section("Операции") {
                     if viewModel.transactions.isEmpty {
                         Text("Нет операций")
                     } else {
@@ -109,13 +109,10 @@ struct TransactionsListHistoryView: View {
                             }
                         }
                     }
-                } header: {
-                    Text("Операции")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
                 }
             }
             .navigationTitle("Моя история")
+            .listSectionSpacing(.compact)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     NavigationLink {

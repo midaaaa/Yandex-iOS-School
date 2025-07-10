@@ -29,7 +29,7 @@ struct TransactionsListView: View {
                         }
                     }
                     
-                    Section {
+                    Section("Операции") {
                         if viewModel.transactions.isEmpty {
                             Text("За сегодня транзакций нет")
                         } else {
@@ -45,10 +45,6 @@ struct TransactionsListView: View {
                                 }
                             }
                         }
-                    } header: {
-                        Text("Операции")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
                     }
                 }
 
@@ -62,6 +58,7 @@ struct TransactionsListView: View {
                 }
                 .tint(Color("OppositeAccentColor"))
                 .navigationTitle(isIncome ? "Доходы сегодня" : "Расходы сегодня")
+                .listSectionSpacing(.compact)
                 
                 NavigationLink {
                     Placeholder()
