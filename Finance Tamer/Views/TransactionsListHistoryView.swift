@@ -8,9 +8,20 @@
 import SwiftUI
 
 struct TransactionsListHistoryView: View {
-    @StateObject var viewModel = TransactionsListHistoryViewModel()
+    @StateObject var viewModel: TransactionsListHistoryViewModel
+    @State private var selectedTransaction: Transaction? = nil
+    @EnvironmentObject var serviceGroup: ServiceGroup
     
     @Binding var isIncome: Bool
+    
+    init(isIncome: Binding<Bool>, serviceGroup: ServiceGroup) {
+        self._isIncome = isIncome
+        self._viewModel = StateObject(wrappedValue: TransactionsListHistoryViewModel(
+            accountService: serviceGroup.bankAccountService,
+            categoryService: serviceGroup.categoryService,
+            transactionService: serviceGroup.transactionService
+        ))
+    }
     
     @State private var startDate: Date = {
         let calendar = Calendar.current
@@ -98,8 +109,8 @@ struct TransactionsListHistoryView: View {
                         Text("Нет операций")
                     } else {
                         ForEach(viewModel.transactions) { transaction in
-                            NavigationLink {
-                                Placeholder()
+                            Button {
+                                selectedTransaction = transaction
                             } label: {
                                 TransactionsListViewRow(
                                     transaction: transaction,
@@ -111,13 +122,30 @@ struct TransactionsListHistoryView: View {
                     }
                 }
             }
+            .sheet(item: $selectedTransaction) { transaction in
+                let category = viewModel.categories.first { $0.id == transaction.categoryId } ?? viewModel.categories[0]
+                TransactionEditView(
+                    viewModel: TransactionEditViewModel(
+                        transaction: transaction,
+                        category: category,
+                        account: viewModel.account,
+                        transactionService: serviceGroup.transactionService,
+                        categoryService: serviceGroup.categoryService,
+                        accountService: serviceGroup.bankAccountService
+                    )
+                )
+            }
             .navigationTitle("Моя история")
             .listSectionSpacing(.compact)
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    NavigationLink {
-                        Placeholder()
-                    } label: {
+                            .toolbar {
+                    ToolbarItem(placement: .primaryAction) {
+                        NavigationLink {
+                            AnalysisView(viewModel: AnalysisViewModel(
+                                accountService: serviceGroup.bankAccountService,
+                                categoryService: serviceGroup.categoryService,
+                                transactionService: serviceGroup.transactionService
+                            ), isIncome: isIncome)
+                        } label: {
                         Image(systemName: "doc")
                     }
                     .foregroundColor(Color("OppositeAccentColor"))
@@ -146,7 +174,12 @@ struct TransactionsListHistoryView: View {
 }
 
 #Preview {
-    let viewModel = TransactionsListHistoryViewModel()
+    let serviceGroup = ServiceGroup()
+    let viewModel = TransactionsListHistoryViewModel(
+        accountService: serviceGroup.bankAccountService,
+        categoryService: serviceGroup.categoryService,
+        transactionService: serviceGroup.transactionService
+    )
     
     let startDate: Date = {
         let calendar = Calendar.current
@@ -161,7 +194,7 @@ struct TransactionsListHistoryView: View {
         return endOfToday
     }()
     
-    TransactionsListHistoryView(viewModel: viewModel, isIncome: .constant(true))
+    TransactionsListHistoryView(isIncome: .constant(true), serviceGroup: serviceGroup)
         .task {
             await viewModel.loadData(for: .income, from: startDate, to: endDate)
         }

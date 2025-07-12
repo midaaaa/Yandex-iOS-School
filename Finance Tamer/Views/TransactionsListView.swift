@@ -10,6 +10,10 @@ import SwiftUI
 struct TransactionsListView: View {
     @ObservedObject var viewModel: TransactionsListViewModel
     @Binding var isIncome: Bool
+    @EnvironmentObject var serviceGroup: ServiceGroup
+    @State private var showCreateSheet = false
+    @State private var selectedTransaction: Transaction? = nil
+    @State private var editViewModel: TransactionEditViewModel?
     
     var body: some View {
         NavigationStack {
@@ -34,8 +38,8 @@ struct TransactionsListView: View {
                             Text("За сегодня транзакций нет")
                         } else {
                             ForEach(viewModel.transactions) { transaction in
-                                NavigationLink{
-                                    Placeholder()
+                                Button {
+                                    selectedTransaction = transaction
                                 } label: {
                                     TransactionsListViewRow(
                                         transaction: transaction,
@@ -47,23 +51,40 @@ struct TransactionsListView: View {
                         }
                     }
                 }
-
+                .sheet(item: $selectedTransaction) { transaction in
+                    let category = viewModel.categories.first { $0.id == transaction.categoryId } ?? viewModel.categories[0]
+                    TransactionEditView(
+                        viewModel: TransactionEditViewModel(
+                            transaction: transaction,
+                            category: category,
+                            account: viewModel.account,
+                            transactionService: serviceGroup.transactionService,
+                            categoryService: serviceGroup.categoryService,
+                            accountService: serviceGroup.bankAccountService
+                        )
+                    )
+                }
                 .toolbar {
                     NavigationLink {
-                        TransactionsListHistoryView(isIncome: $isIncome)
+                        TransactionsListHistoryView(isIncome: $isIncome, serviceGroup: serviceGroup)
                     } label: {
                         Image(systemName: "clock")
                     }
                     .foregroundColor(Color("OppositeAccentColor"))
                 }
-                .tint(Color("OppositeAccentColor"))
                 .navigationTitle(isIncome ? "Доходы сегодня" : "Расходы сегодня")
                 .listSectionSpacing(.compact)
                 
-                NavigationLink {
-                    Placeholder()
-                } label: {
+                Button(action: { showCreateSheet = true }) {
                     AddButton()
+                }
+                .sheet(isPresented: $showCreateSheet) {
+                    TransactionEditView(viewModel: TransactionEditViewModel(
+                        direction: isIncome ? .income : .outcome,
+                        transactionService: serviceGroup.transactionService,
+                        categoryService: serviceGroup.categoryService,
+                        accountService: serviceGroup.bankAccountService
+                    ))
                 }
             }
         }
@@ -72,8 +93,12 @@ struct TransactionsListView: View {
 }
 
 #Preview {
-    let bankAccountService = BankAccountsService()
-    let viewModel = TransactionsListViewModel(accountService: bankAccountService)
+    let serviceGroup = ServiceGroup()
+    let viewModel = TransactionsListViewModel(
+        accountService: serviceGroup.bankAccountService,
+        categoryService: serviceGroup.categoryService,
+        transactionService: serviceGroup.transactionService
+    )
     
     TransactionsListView(viewModel: viewModel, isIncome: .constant(true))
         .task {

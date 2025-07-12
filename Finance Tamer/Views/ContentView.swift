@@ -62,11 +62,14 @@ struct ContentView: View {
 }
 
 #Preview {
-    let bankAccountService = BankAccountsService()
-    let categoryService = CategoriesService()
-    let viewModel = TransactionsListViewModel(accountService: bankAccountService)
-    let viewModel2 = AccountViewModel(bankAccountService: bankAccountService)
-    let viewModel3 = ArticlesViewModel(categoryService: categoryService)
+    let serviceGroup = ServiceGroup()
+    let viewModel = TransactionsListViewModel(
+        accountService: serviceGroup.bankAccountService,
+        categoryService: serviceGroup.categoryService,
+        transactionService: serviceGroup.transactionService
+    )
+    let viewModel2 = AccountViewModel(bankAccountService: serviceGroup.bankAccountService)
+    let viewModel3 = ArticlesViewModel(categoryService: serviceGroup.categoryService)
     ContentView()
         .task {
             await viewModel.loadData(for: .outcome)

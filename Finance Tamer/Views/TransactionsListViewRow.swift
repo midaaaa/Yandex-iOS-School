@@ -41,14 +41,22 @@ struct TransactionsListViewRow: View {
                     showMinus: false
                 )
             )
+            Image(systemName: "chevron.right")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
         }
+        .tint(.primary)
         .frame(height: Constants.rowHeight)
     }
 }
 
 #Preview {
-    let bankAccountService = BankAccountsService()
-    let viewModel = TransactionsListViewModel(accountService: bankAccountService)
+    let serviceGroup = ServiceGroup()
+    let viewModel = TransactionsListViewModel(
+        accountService: serviceGroup.bankAccountService,
+        categoryService: serviceGroup.categoryService,
+        transactionService: serviceGroup.transactionService
+    )
     
     Group {
         TransactionsListViewRow(

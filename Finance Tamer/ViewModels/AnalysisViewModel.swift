@@ -1,13 +1,13 @@
 //
-//  TransactionsListHistoryViewModel.swift
+//  AnalysisViewModel.swift
 //  Finance Tamer
 //
-//  Created by Дмитрий Филимонов on 21.06.2025.
+//  Created by Дмитрий Филимонов on 09.07.2025.
 //
 
 import Foundation
 
-class TransactionsListHistoryViewModel: ObservableObject {
+class AnalysisViewModel: ObservableObject {
     @Published var account: BankAccount = .init(
         id: "1",
         name: "2",
@@ -17,8 +17,14 @@ class TransactionsListHistoryViewModel: ObservableObject {
     @Published var categories: [Category] = [
         .init(
             id: "1",
-            name: "2",
+            name: "something",
             icon: "A",
+            type: .income
+        ),
+        .init(
+            id: "2",
+            name: "5414",
+            icon: "4",
             type: .income
         )
     ]
