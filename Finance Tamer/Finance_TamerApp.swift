@@ -11,11 +11,14 @@ import SwiftUI
 struct Finance_TamerApp: App {
     var body: some Scene {
         WindowGroup {
-            let bankAccountService = BankAccountsService()
-            let categoryService = CategoriesService()
-            let viewModel = TransactionsListViewModel(accountService: bankAccountService)
-            let viewModel2 = AccountViewModel(bankAccountService: bankAccountService)
-            let viewModel3 = ArticlesViewModel(categoryService: categoryService)
+            let sg = ServiceGroup()
+            let viewModel = TransactionsListViewModel(
+                accountService: sg.bankAccountService,
+                categoryService: sg.categoryService,
+                transactionService: sg.transactionService
+            )
+            let viewModel2 = AccountViewModel(bankAccountService: sg.bankAccountService)
+            let viewModel3 = ArticlesViewModel(categoryService: sg.categoryService)
             
             ContentView()
                 .task {
@@ -26,6 +29,13 @@ struct Finance_TamerApp: App {
                 .environmentObject(viewModel)
                 .environmentObject(viewModel2)
                 .environmentObject(viewModel3)
+                .environmentObject(sg)
         }
     }
+}
+
+class ServiceGroup: ObservableObject {
+    let bankAccountService = BankAccountsService()
+    let categoryService = CategoriesService()
+    let transactionService = TransactionsService()
 }

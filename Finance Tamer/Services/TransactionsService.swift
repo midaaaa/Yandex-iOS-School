@@ -37,19 +37,24 @@ final class TransactionsService {
     }
     
     func createTransaction(_ transaction: Transaction) async throws {
+        print("before creating:", mockTransactions.count)
         mockTransactions.append(transaction)
+        print("after creating:", mockTransactions.count)
     }
     
     func editTransaction(_ newTransaction: Transaction) async throws {
         if let index = mockTransactions.firstIndex(where: { $0.id == newTransaction.id }) {
             mockTransactions[index] = newTransaction
+            print("after editing", mockTransactions)
         } else {
             throw Error.notFound
         }
     }
     
     func removeTransaction(withId id: Int) async throws {
+        print("before deleting:", mockTransactions.count)
         mockTransactions.removeAll { $0.id == id }
+        print("after deleting:", mockTransactions.count)
     }
 }
 

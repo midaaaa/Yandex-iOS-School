@@ -47,11 +47,13 @@ class TransactionsListViewModel: ObservableObject {
     @Published var error: String? = nil
     
     private let accountService: BankAccountsService
-    private let categoryService = CategoriesService()
-    private let transactionService = TransactionsService()
+    private let categoryService: CategoriesService
+    private let transactionService: TransactionsService
     
-    init(accountService: BankAccountsService) {
+    init(accountService: BankAccountsService, categoryService: CategoriesService, transactionService: TransactionsService) {
         self.accountService = accountService
+        self.categoryService = categoryService
+        self.transactionService = transactionService
     }
     
     var total: Decimal {
