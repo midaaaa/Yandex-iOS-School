@@ -132,7 +132,15 @@ struct TransactionsListHistoryView: View {
                         transactionService: serviceGroup.transactionService,
                         categoryService: serviceGroup.categoryService,
                         accountService: serviceGroup.bankAccountService
-                    )
+                    ), onChange: {
+                        Task {
+                            await viewModel.loadData(
+                                for: isIncome ? .income : .outcome,
+                                from: startDate,
+                                to: endDate
+                            )
+                        }
+                    }
                 )
             }
             .navigationTitle("Моя история")

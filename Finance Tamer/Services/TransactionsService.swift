@@ -7,61 +7,192 @@
 
 import Foundation
 
+struct TransactionDTO: Codable {
+    let id: Int
+    let account: AccountInTransaction
+    let category: CategoryInTransaction
+    let amount: String
+    let transactionDate: String
+    let comment: String?
+    let createdAt: String?
+    let updatedAt: String?
+}
+
+struct CreatedTransactionDTO: Codable {
+    let id: Int
+    let accountId: Int
+    let categoryId: Int
+    let amount: String
+    let transactionDate: String
+    let comment: String?
+    let createdAt: String?
+    let updatedAt: String?
+}
+
+struct AccountInTransaction: Codable {
+    let id: Int
+    let name: String
+    let balance: String
+    let currency: String
+}
+
+struct CategoryInTransaction: Codable {
+    let id: Int
+    let name: String
+    let emoji: String
+    let isIncome: Bool
+}
+
 @Observable
 final class TransactionsService {
-    private var mockTransactions = [
-        Transaction(id: 1, accountId: "g5ldpb73", categoryId: "1111", amount: Decimal(string: "-1000000.33") ?? 500, comment: nil, timestamp: Date(), hidden: false),
-        Transaction(id: 2, accountId: "g5ldpb73", categoryId: "1112", amount: Decimal(string: "-15000.33") ?? 500, comment: "Энни", timestamp: Date()+1, hidden: false),
-        Transaction(id: 3, accountId: "g5ldpb73", categoryId: "2222", amount: Decimal(string: "15004.33") ?? 500, comment: "Джон", timestamp: Date()+2, hidden: false),
-        Transaction(id: 4, accountId: "g5ldpb73", categoryId: "2223", amount: Decimal(string: "11002.33") ?? 500, comment: "Энни", timestamp: Date()+3, hidden: false),
-        Transaction(id: 5, accountId: "g5ldpb73", categoryId: "1111", amount: Decimal(string: "-999999") ?? 500, comment: "тест", timestamp: Calendar.current.date(byAdding: .day, value: -1, to: Date())!, hidden: false),
-        Transaction(id: 6, accountId: "g5ldpb73", categoryId: "2222", amount: Decimal(string: "999999") ?? 500, comment: "тест", timestamp: Calendar.current.date(byAdding: .day, value: -2, to: Date())!, hidden: false),
-        Transaction(id: 7, accountId: "g5ldpb73", categoryId: "1113", amount: Decimal(string: "-45000.00") ?? 500, comment: "Аренда за июнь", timestamp: Calendar.current.date(byAdding: .day, value: -3, to: Date())!, hidden: false),
-        Transaction(id: 8, accountId: "g5ldpb73", categoryId: "1114", amount: Decimal(string: "-12000.50") ?? 500, comment: "Джинсы", timestamp: Calendar.current.date(byAdding: .day, value: -4, to: Date())!, hidden: false),
-        Transaction(id: 9, accountId: "g5ldpb73", categoryId: "1115", amount: Decimal(string: "-7560.20") ?? 500, comment: "Продукты на неделю", timestamp: Calendar.current.date(byAdding: .day, value: -5, to: Date())!, hidden: false),
-        Transaction(id: 10, accountId: "g5ldpb73", categoryId: "1116", amount: Decimal(string: "-5000.00") ?? 500, comment: "Абонемент", timestamp: Calendar.current.date(byAdding: .month, value: -1, to: Date())!, hidden: false),
-        Transaction(id: 11, accountId: "g5ldpb73", categoryId: "1117", amount: Decimal(string: "-3250.75") ?? 500, comment: "Лекарства", timestamp: Calendar.current.date(byAdding: .day, value: -6, to: Date())!, hidden: false),
-        Transaction(id: 12, accountId: "g5ldpb73", categoryId: "1118", amount: Decimal(string: "-15000.00") ?? 500, comment: "Бензин", timestamp: Calendar.current.date(byAdding: .day, value: -7, to: Date())!, hidden: false),
-        Transaction(id: 13, accountId: "g5ldpb73", categoryId: "1119", amount: Decimal(string: "-8000.00") ?? 500, comment: nil, timestamp: Calendar.current.date(byAdding: .day, value: -8, to: Date())!, hidden: false),
-        Transaction(id: 14, accountId: "g5ldpb73", categoryId: "1113", amount: Decimal(string: "-45000.00") ?? 500, comment: "Аренда за май", timestamp: Calendar.current.date(byAdding: .month, value: -1, to: Date())!, hidden: false),
-        Transaction(id: 15, accountId: "g5ldpb73", categoryId: "1115", amount: Decimal(string: "-8430.40") ?? 500, comment: "Продукты", timestamp: Calendar.current.date(byAdding: .weekOfYear, value: -1, to: Date())!, hidden: false),
-        Transaction(id: 16, accountId: "g5ldpb73", categoryId: "1118", amount: Decimal(string: "-12500.00") ?? 500, comment: "ТО", timestamp: Calendar.current.date(byAdding: .month, value: -2, to: Date())!, hidden: false),
-        //Transaction(...),
-        //Transaction(...),
-    ]
+    private let networkClient = NetworkClient()
+    
+    func fetchTransaction(id: Int) async throws -> TransactionDTO {
+        try await networkClient.request(
+            path: "transactions/\(id)",
+            method: "GET",
+            body: Optional<String>.none
+        )
+    }
+    
+    func fetchTransactions(accountId: Int, from: String, to: String) async throws -> [TransactionDTO] {
+        let queryItems = [
+            URLQueryItem(name: "from", value: from),
+            URLQueryItem(name: "to", value: to)
+        ]
+        return try await networkClient.request(
+            path: "transactions/account/\(accountId)/period",
+            method: "GET",
+            body: Optional<String>.none,
+            queryItems: queryItems
+        )
+    }
+    
+    struct CreateTransactionRequest: Encodable {
+        let accountId: Int
+        let categoryId: Int
+        let amount: String
+        let transactionDate: String
+        let comment: String?
 
-    func getTransactions(from startDate: Date, to endDate: Date) async throws -> [Transaction] {
-        return mockTransactions.filter {
-            startDate <= $0.timestamp && $0.timestamp <= endDate
+        enum CodingKeys: String, CodingKey {
+            case accountId, categoryId, amount, transactionDate, comment
+        }
+
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(accountId, forKey: .accountId)
+            try container.encode(categoryId, forKey: .categoryId)
+            try container.encode(amount, forKey: .amount)
+            try container.encode(transactionDate, forKey: .transactionDate)
+            try container.encode(comment, forKey: .comment)
         }
     }
     
-    func createTransaction(_ transaction: Transaction) async throws {
-        print("before creating:", mockTransactions.count)
-        mockTransactions.append(transaction)
-        print("after creating:", mockTransactions.count)
+    func createTransaction(accountId: Int, categoryId: Int, amount: String, transactionDate: String, comment: String?) async throws -> CreatedTransactionDTO {
+        let req = CreateTransactionRequest(accountId: accountId, categoryId: categoryId, amount: amount, transactionDate: transactionDate, comment: comment)
+        return try await networkClient.request(
+            path: "transactions",
+            method: "POST",
+            body: req
+        )
     }
     
-    func editTransaction(_ newTransaction: Transaction) async throws {
-        if let index = mockTransactions.firstIndex(where: { $0.id == newTransaction.id }) {
-            mockTransactions[index] = newTransaction
-            print("after editing", mockTransactions)
-        } else {
-            throw Error.notFound
+    struct EditTransactionRequest: Encodable {
+        let accountId: Int
+        let categoryId: Int
+        let amount: String
+        let transactionDate: String
+        let comment: String?
+
+        enum CodingKeys: String, CodingKey {
+            case accountId, categoryId, amount, transactionDate, comment
+        }
+
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(accountId, forKey: .accountId)
+            try container.encode(categoryId, forKey: .categoryId)
+            try container.encode(amount, forKey: .amount)
+            try container.encode(transactionDate, forKey: .transactionDate)
+            try container.encode(comment, forKey: .comment)
         }
     }
+    func editTransaction(id: Int, accountId: Int, categoryId: Int, amount: String, transactionDate: String, comment: String?) async throws -> TransactionDTO {
+        let req = EditTransactionRequest(accountId: accountId, categoryId: categoryId, amount: amount, transactionDate: transactionDate, comment: comment)
+        return try await networkClient.request(
+            path: "transactions/\(id)",
+            method: "PUT",
+            body: req
+        )
+    }
     
-    func removeTransaction(withId id: Int) async throws {
-        print("before deleting:", mockTransactions.count)
-        mockTransactions.removeAll { $0.id == id }
-        print("after deleting:", mockTransactions.count)
+    func deleteTransaction(id: Int) async throws {
+        _ = try await networkClient.request(
+            path: "transactions/\(id)",
+            method: "DELETE",
+            body: Optional<String>.none
+        ) as EmptyResponse
     }
 }
 
 extension TransactionsService {
+    private func map(dto: TransactionDTO) -> Transaction {
+        Transaction(
+            id: dto.id,
+            accountId: String(dto.account.id),
+            categoryId: String(dto.category.id),
+            amount: Decimal(string: dto.amount) ?? 0,
+            comment: dto.comment,
+            timestamp: ISO8601DateFormatter().date(from: dto.transactionDate) ?? Date(),
+            hidden: false
+        )
+    }
+    
+    func getTransactions(from startDate: Date, to endDate: Date) async throws -> [Transaction] {
+        let formatter = ISO8601DateFormatter()
+        let fromString = formatter.string(from: startDate)
+        let toString = formatter.string(from: endDate)
+        let accounts = try await BankAccountsService().fetchAccounts()
+        guard let account = accounts.first else { return [] }
+        let dtos = try await fetchTransactions(accountId: account.id, from: fromString, to: toString)
+        return dtos.map(map(dto:))
+    }
+    
+    func createTransaction(_ transaction: Transaction) async throws {
+        guard let accountId = Int(transaction.accountId ?? ""), let categoryId = Int(transaction.categoryId ?? "") else { throw Error.invalidData }
+        let formatter = ISO8601DateFormatter()
+        let dateString = formatter.string(from: transaction.timestamp)
+        let cleanComment: String? = transaction.comment?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == true ? nil : transaction.comment
+        _ = try await createTransaction(
+            accountId: accountId,
+            categoryId: categoryId,
+            amount: transaction.amount.description,
+            transactionDate: dateString,
+            comment: cleanComment
+        )
+    }
+    
+    func editTransaction(_ newTransaction: Transaction) async throws {
+        guard let accountId = Int(newTransaction.accountId ?? ""), let categoryId = Int(newTransaction.categoryId ?? "") else { throw Error.invalidData }
+        let formatter = ISO8601DateFormatter()
+        let dateString = formatter.string(from: newTransaction.timestamp)
+        let cleanComment: String? = newTransaction.comment?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == true ? nil : newTransaction.comment
+        _ = try await editTransaction(
+            id: newTransaction.id,
+            accountId: accountId,
+            categoryId: categoryId,
+            amount: newTransaction.amount.description,
+            transactionDate: dateString,
+            comment: cleanComment
+        )
+    }
+    
+    func removeTransaction(withId id: Int) async throws {
+        try await deleteTransaction(id: id)
+    }
+    
     private enum Error: Swift.Error {
-        case notFound
-        case duplicate
         case invalidData
     }
 }

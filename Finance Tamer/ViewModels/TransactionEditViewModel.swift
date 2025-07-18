@@ -104,13 +104,14 @@ class TransactionEditViewModel: ObservableObject {
             self.showAlert = true
             return
         }
-        let finalAmount = isIncome ? amountDecimal : -amountDecimal
+        let finalAmount = amountDecimal
+        let finalComment: String? = comment.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : comment
         let transaction = Transaction(
             id: id ?? Int(Date().timeIntervalSince1970),
             accountId: account.id,
             categoryId: category.id,
             amount: finalAmount,
-            comment: comment.isEmpty ? nil : comment,
+            comment: finalComment,
             timestamp: date,
             hidden: false
         )
@@ -137,6 +138,8 @@ class TransactionEditViewModel: ObservableObject {
         do {
             try await transactionService.removeTransaction(withId: id)
             print("deleted cats")
+            self.error = nil
+            self.showAlert = false
         } catch {
             self.error = "Ошибка удаления"
             self.showAlert = true

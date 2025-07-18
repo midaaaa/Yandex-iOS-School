@@ -61,7 +61,9 @@ struct TransactionsListView: View {
                             transactionService: serviceGroup.transactionService,
                             categoryService: serviceGroup.categoryService,
                             accountService: serviceGroup.bankAccountService
-                        )
+                        ), onChange: {
+                            Task { await viewModel.loadData(for: isIncome ? .income : .outcome) }
+                        }
                     )
                 }
                 .toolbar {
@@ -84,7 +86,9 @@ struct TransactionsListView: View {
                         transactionService: serviceGroup.transactionService,
                         categoryService: serviceGroup.categoryService,
                         accountService: serviceGroup.bankAccountService
-                    ))
+                    ), onChange: {
+                        Task { await viewModel.loadData(for: isIncome ? .income : .outcome) }
+                    })
                 }
             }
         }
