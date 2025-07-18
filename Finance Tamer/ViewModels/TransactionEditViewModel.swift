@@ -49,7 +49,10 @@ class TransactionEditViewModel: ObservableObject {
         self.accountService = accountService
         self.id = transaction.id
         self.account = account
-        self.amount = transaction.amount.description.replacingOccurrences(of: ".", with: Locale.current.decimalSeparator ?? ".")
+        self.amount = abs(transaction.amount).description.replacingOccurrences(
+            of: ".",
+            with: Locale.current.decimalSeparator ?? "."
+        )
         self.comment = transaction.comment ?? ""
         self.date = transaction.timestamp
         self.category = category
@@ -101,11 +104,12 @@ class TransactionEditViewModel: ObservableObject {
             self.showAlert = true
             return
         }
+        let finalAmount = isIncome ? amountDecimal : -amountDecimal
         let transaction = Transaction(
             id: id ?? Int(Date().timeIntervalSince1970),
             accountId: account.id,
             categoryId: category.id,
-            amount: amountDecimal,
+            amount: finalAmount,
             comment: comment.isEmpty ? nil : comment,
             timestamp: date,
             hidden: false

@@ -46,11 +46,11 @@ struct TransactionEditView: View {
                             .multilineTextAlignment(.trailing)
                             .foregroundColor(.secondary)
                             .frame(maxWidth: 150)
-                            .onChange(of: viewModel.amount) { newValue in
+                            .onChange(of: viewModel.amount) {
                                 let locale = Locale.current
                                 let decimalSeparator = locale.decimalSeparator ?? "."
                                 
-                                let filtered = newValue.filter { char in
+                                let filtered = viewModel.amount.filter { char in
                                     char.isNumber || char == Character(decimalSeparator)
                                 }
                                 
@@ -123,7 +123,9 @@ struct TransactionEditView: View {
                 .presentationDetents([.medium, .large])
             }
             .alert(isPresented: $viewModel.showAlert) {
-                Alert(title: Text("Ошибка"), message: Text(viewModel.error ?? ""), dismissButton: .default(Text("OK")))
+                Alert(title: Text("Ошибка"), message: Text(viewModel.error ?? ""), dismissButton: .default(Text("OK")) {
+                    viewModel.error = nil
+                })
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

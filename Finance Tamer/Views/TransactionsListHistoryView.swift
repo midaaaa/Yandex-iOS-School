@@ -122,7 +122,7 @@ struct TransactionsListHistoryView: View {
                     }
                 }
             }
-            .sheet(item: $selectedTransaction) { transaction in
+            .fullScreenCover(item: $selectedTransaction) { transaction in
                 let category = viewModel.categories.first { $0.id == transaction.categoryId } ?? viewModel.categories[0]
                 TransactionEditView(
                     viewModel: TransactionEditViewModel(

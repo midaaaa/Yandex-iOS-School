@@ -79,4 +79,5 @@ struct ContentView: View {
         .environmentObject(viewModel)
         .environmentObject(viewModel2)
         .environmentObject(viewModel3)
+        .environmentObject(serviceGroup)
 }

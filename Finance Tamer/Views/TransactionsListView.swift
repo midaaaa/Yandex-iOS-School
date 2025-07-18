@@ -51,7 +51,7 @@ struct TransactionsListView: View {
                         }
                     }
                 }
-                .sheet(item: $selectedTransaction) { transaction in
+                .fullScreenCover(item: $selectedTransaction) { transaction in
                     let category = viewModel.categories.first { $0.id == transaction.categoryId } ?? viewModel.categories[0]
                     TransactionEditView(
                         viewModel: TransactionEditViewModel(
@@ -78,7 +78,7 @@ struct TransactionsListView: View {
                 Button(action: { showCreateSheet = true }) {
                     AddButton()
                 }
-                .sheet(isPresented: $showCreateSheet) {
+                .fullScreenCover(isPresented: $showCreateSheet) {
                     TransactionEditView(viewModel: TransactionEditViewModel(
                         direction: isIncome ? .income : .outcome,
                         transactionService: serviceGroup.transactionService,
