@@ -12,6 +12,7 @@ struct TransactionEditView: View {
     @Environment(\.dismiss) var dismiss
     @State private var showDatePicker = false
     @State private var showTimePicker = false
+    var onChange: (() -> Void)? = nil
 
     var body: some View {
         NavigationStack {
@@ -91,7 +92,13 @@ struct TransactionEditView: View {
                     Section {
                         if viewModel.id != nil {
                             Button(role: .destructive, action: {
-                                Task { await viewModel.deleteTransaction(); if viewModel.error == nil { dismiss() } }
+                                Task {
+                                    await viewModel.deleteTransaction()
+                                    if viewModel.error == nil {
+                                        onChange?()
+                                        dismiss()
+                                    }
+                                }
                             }) {
                                 Text(viewModel.isIncome ? "Удалить доход" : "Удалить расход")
                             }
@@ -134,7 +141,13 @@ struct TransactionEditView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(viewModel.id == nil ? "Создать" : "Сохранить") {
-                        Task { await viewModel.save(); if viewModel.error == nil { dismiss() } }
+                        Task {
+                            await viewModel.save()
+                            if viewModel.error == nil {
+                                onChange?()
+                                dismiss()
+                            }
+                        }
                     }
                     .foregroundColor(.oppositeAccent)
                     .disabled(viewModel.isLoading)

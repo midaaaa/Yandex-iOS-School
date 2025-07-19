@@ -13,9 +13,11 @@ struct TransactionsListHistoryView: View {
     @EnvironmentObject var serviceGroup: ServiceGroup
     
     @Binding var isIncome: Bool
+    let onDataChanged: (() -> Void)?
     
-    init(isIncome: Binding<Bool>, serviceGroup: ServiceGroup) {
+    init(isIncome: Binding<Bool>, serviceGroup: ServiceGroup, onDataChanged: (() -> Void)? = nil) {
         self._isIncome = isIncome
+        self.onDataChanged = onDataChanged
         self._viewModel = StateObject(wrappedValue: TransactionsListHistoryViewModel(
             accountService: serviceGroup.bankAccountService,
             categoryService: serviceGroup.categoryService,
@@ -132,13 +134,28 @@ struct TransactionsListHistoryView: View {
                         transactionService: serviceGroup.transactionService,
                         categoryService: serviceGroup.categoryService,
                         accountService: serviceGroup.bankAccountService
-                    )
+                    ), onChange: {
+                        Task {
+                            await viewModel.loadData(
+                                for: isIncome ? .income : .outcome,
+                                from: startDate,
+                                to: endDate
+                            )
+                            onDataChanged?()
+                        }
+                    }
                 )
             }
             .navigationTitle("Моя история")
             .listSectionSpacing(.compact)
                             .toolbar {
                     ToolbarItem(placement: .primaryAction) {
+                    HStack {
+                        if viewModel.isLoading {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                        }
+                        
                         NavigationLink {
                             AnalysisView(viewModel: AnalysisViewModel(
                                 accountService: serviceGroup.bankAccountService,
@@ -149,6 +166,7 @@ struct TransactionsListHistoryView: View {
                         Image(systemName: "doc")
                     }
                     .foregroundColor(Color("OppositeAccentColor"))
+                    }
                 }
             }
             .onChange(of: startDate, initial: true) { _,_  in
@@ -168,6 +186,9 @@ struct TransactionsListHistoryView: View {
                         to: endDate
                     )
                 }
+            }
+            .onDisappear {
+                onDataChanged?()
             }
         }
     }

@@ -61,12 +61,22 @@ struct TransactionsListView: View {
                             transactionService: serviceGroup.transactionService,
                             categoryService: serviceGroup.categoryService,
                             accountService: serviceGroup.bankAccountService
-                        )
+                        ), onChange: {
+                            Task { await viewModel.loadData(for: isIncome ? .income : .outcome) }
+                        }
                     )
                 }
                 .toolbar {
                     NavigationLink {
-                        TransactionsListHistoryView(isIncome: $isIncome, serviceGroup: serviceGroup)
+                        TransactionsListHistoryView(
+                            isIncome: $isIncome, 
+                            serviceGroup: serviceGroup,
+                            onDataChanged: {
+                                Task {
+                                    await viewModel.loadData(for: isIncome ? .income : .outcome)
+                                }
+                            }
+                        )
                     } label: {
                         Image(systemName: "clock")
                     }
@@ -84,11 +94,23 @@ struct TransactionsListView: View {
                         transactionService: serviceGroup.transactionService,
                         categoryService: serviceGroup.categoryService,
                         accountService: serviceGroup.bankAccountService
-                    ))
+                    ), onChange: {
+                        Task { await viewModel.loadData(for: isIncome ? .income : .outcome) }
+                    })
                 }
             }
         }
         .tint(Color("OppositeAccentColor"))
+        .onAppear {
+            Task {
+                await viewModel.loadData(for: isIncome ? .income : .outcome)
+            }
+        }
+        .onChange(of: isIncome) { _, newValue in
+            Task {
+                await viewModel.loadData(for: newValue ? .income : .outcome)
+            }
+        }
     }
 }
 

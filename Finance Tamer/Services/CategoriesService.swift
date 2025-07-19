@@ -7,29 +7,77 @@
 
 import Foundation
 
+struct CategoryDTO: Codable {
+    let id: Int
+    let name: String
+    let emoji: String
+    let isIncome: Bool
+}
+
 @Observable
 final class CategoriesService {
-    private var mockCategories = [
-        Category(id: "1111", name: "Ремонт", icon: "🔨", type: Category.Direction.outcome),
-        Category(id: "1112", name: "Яндекс Плюс", icon: "😇", type: Category.Direction.outcome),
-        Category(id: "1113", name: "Аренда дома", icon: "🏠", type: Category.Direction.outcome),
-        Category(id: "1114", name: "Одежда", icon: "👕", type: Category.Direction.outcome),
-        Category(id: "1115", name: "Продукты", icon: "🛒", type: Category.Direction.outcome),
-        Category(id: "1116", name: "Спортзал", icon: "🏋️‍♂️", type: Category.Direction.outcome),
-        Category(id: "1117", name: "Аптека", icon: "💊", type: Category.Direction.outcome),
-        Category(id: "1118", name: "Машина", icon: "🚗", type: Category.Direction.outcome),
-        Category(id: "1119", name: "На собачку", icon: "🐕", type: Category.Direction.outcome),
-        Category(id: "2222", name: "Зарплата", icon: "💼", type: Category.Direction.income),
-        Category(id: "2223", name: "Кэшбэк", icon: "🏆", type: Category.Direction.income)
-        //Category(...),
-        //Category(...),
-    ]
+    private let networkClient = NetworkClient()
+    private let localStorage: CategoryStorage
     
-    func categories() async throws -> [Category] {
-        return mockCategories
+    init(localStorage: CategoryStorage = SwiftDataCategoryStorage.create()) {
+        self.localStorage = localStorage
     }
     
-    func categories(ofType: Category.Direction) async throws -> [Category] {
-        return mockCategories.filter { $0.type == ofType }
+    func fetchCategories() async throws -> [CategoryDTO] {
+        try await networkClient.request(
+            path: "categories",
+            method: "GET",
+            body: Optional<String>.none
+        )
+    }
+    
+    func fetchCategories(isIncome: Bool) async throws -> [CategoryDTO] {
+        try await networkClient.request(
+            path: "categories/type/\(isIncome)",
+            method: "GET",
+            body: Optional<String>.none
+        )
+    }
+}
+
+extension CategoriesService {
+    private func map(dto: CategoryDTO) -> Category {
+        Category(
+            id: String(dto.id),
+            name: dto.name,
+            icon: dto.emoji.first ?? " ",
+            type: dto.isIncome ? .income : .outcome
+        )
+    }
+    
+    func categories() async throws -> [Category] {
+        do {
+            let dtos = try await fetchCategories()
+            let networkCategories = dtos.map(map(dto:))
+            
+            try await localStorage.updateCategories(networkCategories)
+            
+            return networkCategories
+            
+        } catch {
+            return try await localStorage.getAllCategories()
+        }
+    }
+    
+    func categories(ofType type: Category.Direction) async throws -> [Category] {
+        do {
+            let isIncome = (type == .income)
+            let dtos = try await fetchCategories(isIncome: isIncome)
+            let networkCategories = dtos.map(map(dto:))
+            
+            let allDtos = try await fetchCategories()
+            let allNetworkCategories = allDtos.map(map(dto:))
+            try await localStorage.updateCategories(allNetworkCategories)
+            
+            return networkCategories
+            
+        } catch {
+            return try await localStorage.getCategories(ofType: type)
+        }
     }
 }
