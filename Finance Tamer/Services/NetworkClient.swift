@@ -37,7 +37,7 @@ enum NetworkError: Error, LocalizedError {
 }
 
 final class NetworkClient {
-    private let token: String? = ""
+    private let token: String? = "2c2Fz4zRwrHi64O0qGKXaq1c"
 
     private let baseURL = URL(string: "https://shmr-finance.ru/api/v1")!
 

@@ -17,6 +17,11 @@ struct CategoryDTO: Codable {
 @Observable
 final class CategoriesService {
     private let networkClient = NetworkClient()
+    private let localStorage: CategoryStorage
+    
+    init(localStorage: CategoryStorage = SwiftDataCategoryStorage.create()) {
+        self.localStorage = localStorage
+    }
     
     func fetchCategories() async throws -> [CategoryDTO] {
         try await networkClient.request(
@@ -46,13 +51,33 @@ extension CategoriesService {
     }
     
     func categories() async throws -> [Category] {
-        let dtos = try await fetchCategories()
-        return dtos.map(map(dto:))
+        do {
+            let dtos = try await fetchCategories()
+            let networkCategories = dtos.map(map(dto:))
+            
+            try await localStorage.updateCategories(networkCategories)
+            
+            return networkCategories
+            
+        } catch {
+            return try await localStorage.getAllCategories()
+        }
     }
     
     func categories(ofType type: Category.Direction) async throws -> [Category] {
-        let isIncome = (type == .income)
-        let dtos = try await fetchCategories(isIncome: isIncome)
-        return dtos.map(map(dto:))
+        do {
+            let isIncome = (type == .income)
+            let dtos = try await fetchCategories(isIncome: isIncome)
+            let networkCategories = dtos.map(map(dto:))
+            
+            let allDtos = try await fetchCategories()
+            let allNetworkCategories = allDtos.map(map(dto:))
+            try await localStorage.updateCategories(allNetworkCategories)
+            
+            return networkCategories
+            
+        } catch {
+            return try await localStorage.getCategories(ofType: type)
+        }
     }
 }

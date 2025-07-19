@@ -35,7 +35,20 @@ struct Finance_TamerApp: App {
 }
 
 class ServiceGroup: ObservableObject {
-    let bankAccountService = BankAccountsService()
-    let categoryService = CategoriesService()
-    let transactionService = TransactionsService()
+    let bankAccountService: BankAccountsService
+    let categoryService: CategoriesService
+    let transactionService: TransactionsService
+    
+    init() {
+        let transactionStorage = SwiftDataTransactionStorage.create()
+        let bankAccountStorage = SwiftDataBankAccountStorage.create()
+        let categoryStorage = SwiftDataCategoryStorage.create()
+        
+        self.bankAccountService = BankAccountsService(localStorage: bankAccountStorage)
+        self.categoryService = CategoriesService(localStorage: categoryStorage)
+        self.transactionService = TransactionsService(
+            localStorage: transactionStorage,
+            bankAccountService: self.bankAccountService
+        )
+    }
 }

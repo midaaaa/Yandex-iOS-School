@@ -68,7 +68,15 @@ struct TransactionsListView: View {
                 }
                 .toolbar {
                     NavigationLink {
-                        TransactionsListHistoryView(isIncome: $isIncome, serviceGroup: serviceGroup)
+                        TransactionsListHistoryView(
+                            isIncome: $isIncome, 
+                            serviceGroup: serviceGroup,
+                            onDataChanged: {
+                                Task {
+                                    await viewModel.loadData(for: isIncome ? .income : .outcome)
+                                }
+                            }
+                        )
                     } label: {
                         Image(systemName: "clock")
                     }
@@ -93,6 +101,16 @@ struct TransactionsListView: View {
             }
         }
         .tint(Color("OppositeAccentColor"))
+        .onAppear {
+            Task {
+                await viewModel.loadData(for: isIncome ? .income : .outcome)
+            }
+        }
+        .onChange(of: isIncome) { _, newValue in
+            Task {
+                await viewModel.loadData(for: newValue ? .income : .outcome)
+            }
+        }
     }
 }
 
