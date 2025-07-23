@@ -84,6 +84,7 @@ class TransactionsListHistoryViewModel: ObservableObject {
     @MainActor
     func loadData(for direction: Category.Direction, from startDate: Date?, to endDate: Date?) async {
         isLoading = true
+        self.transactions = []
         defer { isLoading = false }
         
         do {
@@ -108,10 +109,12 @@ class TransactionsListHistoryViewModel: ObservableObject {
                 validCategoryIds.contains($0.categoryId ?? "")
             }
             
+            let uniqueTransactions = Array(Dictionary(grouping: filteredTransactions, by: { $0.id }).values.compactMap { $0.first })
             self.account = fetchedAccount
             self.categories = fetchedCategories
-            self.transactions = filteredTransactions
+            self.transactions = uniqueTransactions
             sortTransactions()
+            
             self.error = nil
         } catch {
             self.error = "Ошибка загрузки данных"

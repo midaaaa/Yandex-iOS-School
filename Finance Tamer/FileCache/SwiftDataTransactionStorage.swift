@@ -32,7 +32,6 @@ actor TransactionModelActor {
             entity.timestamp = transaction.timestamp
             entity.hidden = transaction.hidden
         } else {
-            // Если транзакция не найдена, создаем новую
             let newEntity = TransactionEntity(from: transaction)
             modelContext.insert(newEntity)
         }

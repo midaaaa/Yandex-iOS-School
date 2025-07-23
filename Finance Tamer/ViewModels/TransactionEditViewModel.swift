@@ -70,7 +70,6 @@ class TransactionEditViewModel: ObservableObject {
         do {
             let cats = try await categoryService.categories(ofType: direction)
             self.categories = cats
-            print("loaded cats")
         } catch {
             self.error = "Ошибка загрузки категорий"
         }
@@ -123,7 +122,6 @@ class TransactionEditViewModel: ObservableObject {
             } else {
                 try await transactionService.editTransaction(transaction)
             }
-            print("saved")
         } catch {
             self.error = "Ошибка сохранения"
             self.showAlert = true
@@ -137,7 +135,6 @@ class TransactionEditViewModel: ObservableObject {
         defer { isLoading = false }
         do {
             try await transactionService.removeTransaction(withId: id)
-            print("deleted cats")
             self.error = nil
             self.showAlert = false
         } catch {

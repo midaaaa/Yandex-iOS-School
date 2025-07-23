@@ -70,12 +70,7 @@ struct TransactionsListView: View {
                     NavigationLink {
                         TransactionsListHistoryView(
                             isIncome: $isIncome, 
-                            serviceGroup: serviceGroup,
-                            onDataChanged: {
-                                Task {
-                                    await viewModel.loadData(for: isIncome ? .income : .outcome)
-                                }
-                            }
+                            serviceGroup: serviceGroup
                         )
                     } label: {
                         Image(systemName: "clock")

@@ -21,7 +21,20 @@ enum NetworkError: Error, LocalizedError {
         case .invalidURL:
             return "Некорректный URL."
         case .httpError(let code, _):
-            return "Ошибка HTTP: код \(code)"
+            switch code {
+            case 400:
+                return "Некорректные данные или неверный формат ID/параметра."
+            case 401:
+                return "Неавторизованный доступ."
+            case 404:
+                return "Объект не найден (счет, категория или транзакция)."
+            case 409:
+                return "Конфликт: у счета есть связанные транзакции."
+            case 500:
+                return "Внутренняя ошибка сервера."
+            default:
+                return "Ошибка HTTP: код \(code)"
+            }
         case .decodingError(let error):
             return "Ошибка декодирования: \(error.localizedDescription)"
         case .encodingError(let error):

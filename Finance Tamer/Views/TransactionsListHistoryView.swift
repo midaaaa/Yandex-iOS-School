@@ -169,7 +169,7 @@ struct TransactionsListHistoryView: View {
                     }
                 }
             }
-            .onChange(of: startDate, initial: true) { _,_  in
+            .onChange(of: startDate) { _,_  in
                 Task {
                     await viewModel.loadData(
                         for: isIncome ? .income : .outcome,
@@ -178,7 +178,16 @@ struct TransactionsListHistoryView: View {
                     )
                 }
             }
-            .onChange(of: endDate, initial: true) { _,_ in
+            .onChange(of: endDate) { _,_ in
+                Task {
+                    await viewModel.loadData(
+                        for: isIncome ? .income : .outcome,
+                        from: startDate,
+                        to: endDate
+                    )
+                }
+            }
+            .onAppear {
                 Task {
                     await viewModel.loadData(
                         for: isIncome ? .income : .outcome,

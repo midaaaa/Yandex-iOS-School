@@ -52,6 +52,7 @@ final class TransactionsService {
     
     private static var lastSyncTime: Date?
     private static let syncCooldown: TimeInterval = 5.0
+    private var isSyncing = false
     
     init(localStorage: TransactionStorage = SwiftDataTransactionStorage.create(), 
          backupStorage: TransactionBackupStorage = SwiftDataBackupStorage(),
@@ -179,6 +180,8 @@ extension TransactionsService {
                 _ = await syncBackupOperations()
             }
             
+            let allLocalTransactions = try await localStorage.getAllTransactions()
+            
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd"
             let fromString = dateFormatter.string(from: startDate)
@@ -189,7 +192,6 @@ extension TransactionsService {
             let dtos = try await fetchTransactions(accountId: account.id, from: fromString, to: toString)
             
             let networkTransactions = dtos.map(map(dto:))
-            let allLocalTransactions = try await localStorage.getAllTransactions()
             
             var updatedCount = 0
             var createdCount = 0
@@ -222,8 +224,13 @@ extension TransactionsService {
             }
             
             Self.lastSyncTime = Date()
-            
-            return networkTransactions
+
+            let finalLocalTransactions = try await localStorage.getAllTransactions()
+            let uniqueTransactions = Array(
+                Dictionary(grouping: finalLocalTransactions,
+                           by: { $0.id }).values.compactMap { $0.first }
+            )
+            return uniqueTransactions
             
         } catch {
             let allLocalTransactions = try await localStorage.getAllTransactions()
@@ -426,15 +433,18 @@ extension TransactionsService {
     }
     
     private func syncBackupOperations() async -> Bool {
+        guard !isSyncing else {
+            return false
+        }
+        isSyncing = true
+        defer { isSyncing = false }
         do {
             let unsyncedOperations = try await backupStorage.getUnsyncedOperations()
             guard !unsyncedOperations.isEmpty else {
                 return false
             }
-            
             var syncedCount = 0
             var failedCount = 0
-            
             for operation in unsyncedOperations {
                 do {
                     switch operation.type {
@@ -445,10 +455,8 @@ extension TransactionsService {
                     case .delete:
                         try await syncDeleteOperation(operation)
                     }
-                    
                     try await backupStorage.removeOperation(id: operation.id)
                     syncedCount += 1
-                    
                 } catch {
                     if let httpError = error as? NetworkError,
                        case .httpError(let statusCode, _) = httpError, 
@@ -458,11 +466,8 @@ extension TransactionsService {
                     }
                 }
             }
-            
             return syncedCount > 0 || failedCount > 0
-            
         } catch {
-            print("Ошибка получения операций бекапа: \(error)")
             return false
         }
     }
@@ -472,11 +477,9 @@ extension TransactionsService {
               let categoryId = Int(operation.data.categoryId ?? "") else { 
             throw Error.invalidData 
         }
-        
         let formatter = ISO8601DateFormatter()
         let dateString = formatter.string(from: operation.data.timestamp)
         let cleanComment: String? = operation.data.comment?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == true ? nil : operation.data.comment
-        
         let createdDTO = try await createTransaction(
             accountId: accountId,
             categoryId: categoryId,
@@ -486,7 +489,11 @@ extension TransactionsService {
         )
         
         let allLocalTransactions = try await localStorage.getAllTransactions()
-        let existingTransaction = allLocalTransactions.first { localTransaction in
+        if let tempTransaction = allLocalTransactions.first(where: { $0.id == operation.data.id }) {
+            try await localStorage.deleteTransaction(withId: tempTransaction.id)
+        }
+        
+        let duplicateTransactions = allLocalTransactions.filter { localTransaction in
             localTransaction.accountId == operation.data.accountId &&
             localTransaction.categoryId == operation.data.categoryId &&
             localTransaction.amount == operation.data.amount &&
@@ -495,17 +502,33 @@ extension TransactionsService {
             localTransaction.id != operation.data.id && localTransaction.id > 0
         }
         
-        if let existing = existingTransaction {
-            try await localStorage.deleteTransaction(withId: operation.data.id)
-            print("Транзакция уже существует с серверным ID \(existing.id), удаляем временную \(operation.data.id)")
-        } else {
-            try await localStorage.deleteTransaction(withId: operation.data.id)
-            
-            var updatedTransaction = operation.data
-            updatedTransaction.id = createdDTO.id
-            try await localStorage.createTransaction(updatedTransaction)
-            
-            print("Синхронизирована операция создания: временный ID \(operation.data.id) -> серверный ID \(createdDTO.id)")
+        for duplicate in duplicateTransactions {
+            try await localStorage.deleteTransaction(withId: duplicate.id)
+        }
+        
+        var updatedTransaction = operation.data
+        updatedTransaction.id = createdDTO.id
+        try await localStorage.createTransaction(updatedTransaction)
+
+        
+        let unsyncedOperations = try await backupStorage.getUnsyncedOperations()
+        let updateOpsForTempId = unsyncedOperations.filter {
+            $0.type == .update && $0.transactionId == operation.data.id
+        }
+        
+        for updateOp in updateOpsForTempId {
+            let migratedUpdate = BackupOperation(
+                id: UUID().uuidString,
+                type: .update,
+                transactionId: createdDTO.id,
+                data: {
+                    var d = updateOp.data; d.id = createdDTO.id; return d
+                }(),
+                timestamp: updateOp.timestamp,
+                synced: false
+            )
+            try await backupStorage.addOperation(migratedUpdate)
+            try await backupStorage.removeOperation(id: updateOp.id)
         }
     }
     
@@ -528,12 +551,10 @@ extension TransactionsService {
             comment: cleanComment
         )
         
-        print("Синхронизирована операция обновления: ID \(operation.data.id)")
     }
     
     private func syncDeleteOperation(_ operation: BackupOperation) async throws {
         try await deleteTransaction(id: operation.data.id)
-        print("Синхронизирована операция удаления: ID \(operation.data.id)")
     }
     
     private func updateBalanceForTransaction(transaction: Transaction, isIncome: Bool) async {
