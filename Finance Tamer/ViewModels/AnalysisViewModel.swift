@@ -14,40 +14,8 @@ class AnalysisViewModel: ObservableObject {
         balance: 3,
         currency: "USD"
     )
-    @Published var categories: [Category] = [
-        .init(
-            id: "1",
-            name: "something",
-            icon: "A",
-            type: .income
-        ),
-        .init(
-            id: "2",
-            name: "5414",
-            icon: "4",
-            type: .income
-        )
-    ]
-    @Published var transactions: [Transaction] = [
-        .init(
-            id: 1,
-            accountId: "2",
-            categoryId: "3",
-            amount: 3,
-            comment: "321",
-            timestamp: Date(),
-            hidden: false
-        ),
-        .init(
-            id: 2,
-            accountId: "2",
-            categoryId: "3",
-            amount: 3,
-            comment: nil,
-            timestamp: Date(),
-            hidden: false
-        )
-    ]
+    @Published var categories: [Category] = []
+    @Published var transactions: [Transaction] = []
     
     @Published var isLoading: Bool = false
     @Published var error: String? = nil
