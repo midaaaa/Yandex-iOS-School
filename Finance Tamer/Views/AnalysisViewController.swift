@@ -64,6 +64,7 @@ final class AnalysisViewController: UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(AnalysisParamsCell.self, forCellReuseIdentifier: AnalysisParamsCell.reuseId)
+        tableView.register(PieChartCell.self, forCellReuseIdentifier: PieChartCell.reuseId)
         tableView.register(TransactionCell.self, forCellReuseIdentifier: "TransactionCell")
         tableView.register(EmptyStateCell.self, forCellReuseIdentifier: EmptyStateCell.reuseId)
         tableView.backgroundColor = .clear
@@ -117,46 +118,56 @@ extension AnalysisViewController: UITableViewDataSource, UITableViewDelegate {
     func numberOfSections(in tableView: UITableView) -> Int {
         2
     }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
-            return 1
+            return viewModel.transactions.isEmpty ? 1 : 2
         } else {
             return viewModel.transactions.isEmpty ? 1 : viewModel.transactions.count
         }
     }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.section == 0 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: AnalysisParamsCell.reuseId, for: indexPath) as! AnalysisParamsCell
-            let sum = formatAmount(viewModel.total.description, currencyCode: viewModel.account.currency, showMinus: false)
-            cell.configure(startDate: startDate, endDate: endDate, sum: sum, sortIndex: viewModel.sortType == .byDate ? 0 : 1)
-            cell.onStartDateChanged = { [weak self] date in
-                guard let self = self else { return }
-                let calendar = Calendar.current
-                let picked = calendar.startOfDay(for: date)
-                self.startDate = picked
-                if self.startDate > self.endDate {
-                    self.endDate = self.startDate
+            if indexPath.row == 0 {
+                let cell = tableView.dequeueReusableCell(withIdentifier: AnalysisParamsCell.reuseId, for: indexPath) as! AnalysisParamsCell
+                let sum = formatAmount(viewModel.total.description, currencyCode: viewModel.account.currency, showMinus: false)
+                cell.configure(startDate: startDate, endDate: endDate, sum: sum, sortIndex: viewModel.sortType == .byDate ? 0 : 1)
+                cell.onStartDateChanged = { [weak self] date in
+                    guard let self = self else { return }
+                    let calendar = Calendar.current
+                    let picked = calendar.startOfDay(for: date)
+                    self.startDate = picked
+                    if self.startDate > self.endDate {
+                        self.endDate = self.startDate
+                    }
+                    self.loadDataAndReload()
+                    self.updateDateFields()
                 }
-                self.loadDataAndReload()
-                self.updateDateFields()
-            }
-            cell.onEndDateChanged = { [weak self] date in
-                guard let self = self else { return }
-                let calendar = Calendar.current
-                let picked = calendar.startOfDay(for: date)
-                self.endDate = picked
-                if self.endDate < self.startDate {
-                    self.startDate = self.endDate
+                cell.onEndDateChanged = { [weak self] date in
+                    guard let self = self else { return }
+                    let calendar = Calendar.current
+                    let picked = calendar.startOfDay(for: date)
+                    self.endDate = picked
+                    if self.endDate < self.startDate {
+                        self.startDate = self.endDate
+                    }
+                    self.loadDataAndReload()
+                    self.updateDateFields()
                 }
-                self.loadDataAndReload()
-                self.updateDateFields()
+                cell.onSortChanged = { [weak self] idx in
+                    self?.viewModel.sortType = idx == 0 ? .byDate : .byAmount
+                    self?.tableView.reloadData()
+                }
+                cell.separatorInset = UIEdgeInsets(top: 0, left: 10000, bottom: 0, right: 0)
+                return cell
+            } else if indexPath.row == 1 && !viewModel.transactions.isEmpty {
+                let cell = tableView.dequeueReusableCell(withIdentifier: PieChartCell.reuseId, for: indexPath) as! PieChartCell
+                cell.pieChartView.setEntities(viewModel.chartEntities, animated: true)
+                return cell
+            } else {
+                fatalError("Invalid row in section 0")
             }
-            cell.onSortChanged = { [weak self] idx in
-                self?.viewModel.sortType = idx == 0 ? .byDate : .byAmount
-                self?.tableView.reloadData()
-            }
-            cell.separatorInset = UIEdgeInsets(top: 0, left: 10000, bottom: 0, right: 0)
-            return cell
         } else {
             if viewModel.transactions.isEmpty {
                 let cell = tableView.dequeueReusableCell(withIdentifier: EmptyStateCell.reuseId, for: indexPath) as! EmptyStateCell
@@ -197,13 +208,14 @@ extension AnalysisViewController: UITableViewDataSource, UITableViewDelegate {
             }
         }
     }
-
+    
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if section == 1 {
             return 22
         }
         return 0.01
     }
+    
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if section == 1 {
             let container = UIView()
@@ -227,10 +239,10 @@ extension AnalysisViewController: UITableViewDataSource, UITableViewDelegate {
         }
         return nil
     }
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }
-    
 }
 
 

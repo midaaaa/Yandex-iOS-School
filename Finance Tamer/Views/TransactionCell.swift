@@ -9,11 +9,11 @@ import UIKit
 
 class TransactionCell: UITableViewCell {
     private enum Constants {
-        static let titleLabelFont: CGFloat = 16
+        static let titleLabelFont: CGFloat = 15
         static let titleLabelNumberOfLines: Int = 1
-        static let descriptionLabelFont: CGFloat = 14
+        static let descriptionLabelFont: CGFloat = 13
         static let descriptionLabelNumberOfLines: Int = 1
-        static let priceLabelFont: CGFloat = 16
+        static let priceLabelFont: CGFloat = 15
         static let priceLabelNumberOfLines: Int = 1
         static let iconSize: CGFloat = 30
         static let iconCornerRadius: CGFloat = 15
@@ -112,7 +112,7 @@ class TransactionCell: UITableViewCell {
             
             priceLabel.topAnchor.constraint(equalTo: percentLabel.bottomAnchor, constant: Constants.cellPadding),
             priceLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Constants.cellPadding-16),
-            priceLabel.widthAnchor.constraint(equalToConstant: 150),
+            priceLabel.widthAnchor.constraint(equalToConstant: 100),
             priceLabel.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -Constants.cellPadding),
             
             separator.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Constants.cellPadding),
