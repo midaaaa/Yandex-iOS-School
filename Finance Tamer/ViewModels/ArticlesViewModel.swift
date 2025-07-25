@@ -7,7 +7,7 @@
 
 import Foundation
 
-class ArticlesViewModel: ObservableObject {
+final class ArticlesViewModel: ObservableObject {
     @Published var categories: [Category]?
     @Published var isLoading: Bool = false
     @Published var error: String? = nil

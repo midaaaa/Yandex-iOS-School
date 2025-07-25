@@ -8,7 +8,7 @@
 import Foundation
 import PieChart
 
-class AnalysisViewModel: ObservableObject {
+final class AnalysisViewModel: ObservableObject {
     @Published var account: BankAccount = .init(
         id: "1",
         name: "2",

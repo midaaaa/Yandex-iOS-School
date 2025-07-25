@@ -45,7 +45,7 @@ struct Finance_TamerApp: App {
     }
 }
 
-class ServiceGroup: ObservableObject {
+final class ServiceGroup: ObservableObject {
     let bankAccountService: BankAccountsService
     let categoryService: CategoriesService
     let transactionService: TransactionsService

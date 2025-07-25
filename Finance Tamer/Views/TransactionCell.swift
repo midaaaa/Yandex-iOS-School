@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TransactionCell: UITableViewCell {
+final class TransactionCell: UITableViewCell {
     private enum Constants {
         static let titleLabelFont: CGFloat = 15
         static let titleLabelNumberOfLines: Int = 1

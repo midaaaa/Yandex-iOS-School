@@ -7,7 +7,7 @@
 
 import Foundation
 
-class AccountViewModel: ObservableObject {
+final class AccountViewModel: ObservableObject {
     @Published var bankAccount: BankAccount?
     @Published var isEditing: Bool = false
     @Published var isLoading: Bool = false

@@ -7,7 +7,7 @@
 
 import Foundation
 
-class TransactionEditViewModel: ObservableObject {
+final class TransactionEditViewModel: ObservableObject {
     @Published var id: Int? = nil
     @Published var account: BankAccount? = nil
     @Published var category: Category? = nil

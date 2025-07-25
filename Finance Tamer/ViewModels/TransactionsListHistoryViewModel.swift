@@ -7,7 +7,7 @@
 
 import Foundation
 
-class TransactionsListHistoryViewModel: ObservableObject {
+final class TransactionsListHistoryViewModel: ObservableObject {
     @Published var account: BankAccount = .init(
         id: "1",
         name: "2",
