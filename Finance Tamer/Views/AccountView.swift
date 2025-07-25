@@ -194,3 +194,13 @@ struct AccountView: View {
         }
     }
 }
+
+#Preview {
+    let serviceGroup = ServiceGroup()
+    let viewModel = AccountViewModel(bankAccountService: serviceGroup.bankAccountService, transactionsService: serviceGroup.transactionService)
+    AccountView(viewModel: viewModel)
+        .environmentObject(serviceGroup)
+        .task {
+            await viewModel.loadBankAccount()
+        }
+}
