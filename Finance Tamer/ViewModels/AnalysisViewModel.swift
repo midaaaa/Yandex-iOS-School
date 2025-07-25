@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import PieChart
 
 class AnalysisViewModel: ObservableObject {
     @Published var account: BankAccount = .init(
@@ -39,6 +40,7 @@ class AnalysisViewModel: ObservableObject {
         case .byAmount:
             transactions.sort { abs($0.amount) > abs($1.amount) }
         }
+        updateChartEntities()
     }
     
     private let accountService: BankAccountsService
@@ -53,6 +55,22 @@ class AnalysisViewModel: ObservableObject {
     
     var total: Decimal {
         transactions.reduce(0) { $0 + $1.amount }
+    }
+    
+    var chartEntities: [Entity] = []
+
+    private func updateChartEntities() {
+        let grouped = Dictionary(grouping: transactions) { $0.categoryId ?? "" }
+        let categorySums: [(category: Category, sum: Decimal)] = categories.compactMap { category in
+            guard let txs = grouped[category.id], !txs.isEmpty else { return nil }
+            let sum = txs.reduce(Decimal(0)) { $0 + $1.amount }
+            return (category, sum)
+        }
+        .filter { $0.sum != 0 }
+        .sorted { abs($0.sum) > abs($1.sum) }
+        
+        let entities: [Entity] = categorySums.map { Entity(value: $0.sum, label: $0.category.name) }
+        self.chartEntities = entities
     }
     
     @MainActor
@@ -86,10 +104,11 @@ class AnalysisViewModel: ObservableObject {
             self.categories = fetchedCategories
             self.transactions = filteredTransactions
             sortTransactions()
-            self.error = nil
+            updateChartEntities()
         } catch {
             self.error = "Ошибка загрузки данных"
             self.transactions = []
+            self.chartEntities = []
         }
     }
 }

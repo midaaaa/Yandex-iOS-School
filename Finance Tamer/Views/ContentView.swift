@@ -122,7 +122,7 @@ private func tabBarHeight(geometry: GeometryProxy) -> CGFloat {
         categoryService: serviceGroup.categoryService,
         transactionService: serviceGroup.transactionService
     )
-    let viewModel2 = AccountViewModel(bankAccountService: serviceGroup.bankAccountService)
+    let viewModel2 = AccountViewModel(bankAccountService: serviceGroup.bankAccountService, transactionsService: serviceGroup.transactionService)
     let viewModel3 = ArticlesViewModel(categoryService: serviceGroup.categoryService)
     ContentView()
         .task {

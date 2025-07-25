@@ -9,6 +9,8 @@ import SwiftUI
 
 @main
 struct Finance_TamerApp: App {
+    @State private var showSplash = true
+    
     var body: some Scene {
         WindowGroup {
             let sg = ServiceGroup()
@@ -17,19 +19,28 @@ struct Finance_TamerApp: App {
                 categoryService: sg.categoryService,
                 transactionService: sg.transactionService
             )
-            let viewModel2 = AccountViewModel(bankAccountService: sg.bankAccountService)
+            let viewModel2 = AccountViewModel(bankAccountService: sg.bankAccountService, transactionsService: sg.transactionService)
             let viewModel3 = ArticlesViewModel(categoryService: sg.categoryService)
             
-            ContentView()
-                .task {
-                    await viewModel.loadData(for: .outcome)
-                    await viewModel2.loadBankAccount()
-                    await viewModel3.loadData()
+            if showSplash {
+                LottieSplashView(animationName: "animation") {
+                    withAnimation {
+                        showSplash = false
+                    }
                 }
-                .environmentObject(viewModel)
-                .environmentObject(viewModel2)
-                .environmentObject(viewModel3)
-                .environmentObject(sg)
+                .ignoresSafeArea()
+            } else {
+                ContentView()
+                    .task {
+                        await viewModel.loadData(for: .outcome)
+                        await viewModel2.loadBankAccount()
+                        await viewModel3.loadData()
+                    }
+                    .environmentObject(viewModel)
+                    .environmentObject(viewModel2)
+                    .environmentObject(viewModel3)
+                    .environmentObject(sg)
+            }
         }
     }
 }

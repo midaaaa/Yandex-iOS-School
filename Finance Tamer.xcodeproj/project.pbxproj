@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		0166D5C52E3394700066129A /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 0166D5C42E3394700066129A /* Lottie */; };
+		01EEF8902E32960E0085D0AD /* PieChart in Frameworks */ = {isa = PBXBuildFile; productRef = 01EEF88F2E32960E0085D0AD /* PieChart */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		010AB6D62DFB850D00C77BCC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -19,6 +24,8 @@
 /* Begin PBXFileReference section */
 		010AB65E2DF9D99300C77BCC /* Finance Tamer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Finance Tamer.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		010AB6D22DFB850D00C77BCC /* Finance Tamer Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Finance Tamer Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0166D51A2E338D190066129A /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
+		01EEF88A2E328B220085D0AD /* Utilities */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Utilities; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -39,6 +46,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				01EEF8902E32960E0085D0AD /* PieChart in Frameworks */,
+				0166D5C52E3394700066129A /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -55,8 +64,11 @@
 		010AB6552DF9D99300C77BCC = {
 			isa = PBXGroup;
 			children = (
+				0166D51A2E338D190066129A /* Package.swift */,
+				01EEF88A2E328B220085D0AD /* Utilities */,
 				010AB6602DF9D99300C77BCC /* Finance Tamer */,
 				010AB6D32DFB850D00C77BCC /* Finance Tamer Tests */,
+				01EEF88E2E32960E0085D0AD /* Frameworks */,
 				010AB65F2DF9D99300C77BCC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -68,6 +80,13 @@
 				010AB6D22DFB850D00C77BCC /* Finance Tamer Tests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		01EEF88E2E32960E0085D0AD /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -90,6 +109,8 @@
 			);
 			name = "Finance Tamer";
 			packageProductDependencies = (
+				01EEF88F2E32960E0085D0AD /* PieChart */,
+				0166D5C42E3394700066129A /* Lottie */,
 			);
 			productName = "Finance Tamer";
 			productReference = 010AB65E2DF9D99300C77BCC /* Finance Tamer.app */;
@@ -147,6 +168,9 @@
 			);
 			mainGroup = 010AB6552DF9D99300C77BCC;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				0166D5C32E3394700066129A /* XCRemoteSwiftPackageReference "lottie-ios" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 010AB65F2DF9D99300C77BCC /* Products */;
 			projectDirPath = "";
@@ -445,6 +469,29 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0166D5C32E3394700066129A /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0166D5C42E3394700066129A /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0166D5C32E3394700066129A /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
+		};
+		01EEF88F2E32960E0085D0AD /* PieChart */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PieChart;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 010AB6562DF9D99300C77BCC /* Project object */;
 }
